@@ -29,13 +29,12 @@ actionable early warnings based on data schools already generate.
 
 ## Project Status
 
-| Phase | Description | Status |
-|---|---|---|
 | **Phase 1** | Server / Foundation Setup | ✅ Complete |
 | **Phase 2** | Data Ingestion & Student Management | ✅ Complete |
 | **Phase 3** | AI/ML Risk Detection | ✅ Complete |
-| Phase 4 | Teacher Dashboard & Intervention System | 🔜 Next |
-| Testing | Comprehensive Test Suite | 🔜 Not started |
+| **Phase 4** | Teacher Dashboard & Intervention System | ✅ Complete |
+| **Testing** | Comprehensive Test Suite | 🔜 Next |
+
 
 
 

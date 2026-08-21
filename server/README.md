@@ -243,13 +243,47 @@ With the server running, open:
 | http://localhost:8000/redoc | ReDoc (readable) |
 | http://localhost:8000/openapi.json | OpenAPI schema |
 
-### Available Endpoints (Phase 1)
+### Available Endpoints (Phase 1 & Phase 2)
 
 ```
-GET /                       → Service info and links
-GET /api/v1/health          → Liveness probe
-GET /api/v1/health/firebase → Firebase connectivity probe
+# Health & Status
+GET    /                                 → Service info and links
+GET    /api/v1/health                    → Liveness probe
+GET    /api/v1/health/firebase           → Firebase connectivity probe
+
+# Schools
+POST   /api/v1/schools                   → Create school (ADMIN)
+GET    /api/v1/schools                   → List schools (ADMIN)
+GET    /api/v1/schools/{school_id}       → Get school details
+PATCH  /api/v1/schools/{school_id}       → Update school details (ADMIN / SCHOOL_ADMIN)
+
+# Users
+POST   /api/v1/users                     → Create user profile (ADMIN / SCHOOL_ADMIN)
+GET    /api/v1/users/me                  → Get current user profile
+GET    /api/v1/users/{user_id}           → Get user by ID (ADMIN / SCHOOL_ADMIN)
+GET    /api/v1/users/school/{school_id}  → List school users (ADMIN / SCHOOL_ADMIN)
+
+# Classes
+POST   /api/v1/classes                   → Create class (ADMIN / SCHOOL_ADMIN)
+GET    /api/v1/classes/{class_id}        → Get class details
+PATCH  /api/v1/classes/{class_id}        → Update class details (ADMIN / SCHOOL_ADMIN)
+GET    /api/v1/classes/school/{school_id}→ List classes in a school
+
+# Students
+POST   /api/v1/students                  → Create student (ADMIN / SCHOOL_ADMIN)
+GET    /api/v1/students/{student_id}     → Get student profile
+PATCH  /api/v1/students/{student_id}     → Update student profile (ADMIN / SCHOOL_ADMIN)
+GET    /api/v1/students/class/{class_id} → List students in class
+GET    /api/v1/students/{student_id}/attendance  → List student attendance
+GET    /api/v1/students/{student_id}/homework    → List student homework
+GET    /api/v1/students/{student_id}/test-scores → List student test scores
+
+# Data Ingestion (CSV)
+POST   /api/v1/ingestion/attendance      → Ingest attendance CSV
+POST   /api/v1/ingestion/homework        → Ingest homework CSV
+POST   /api/v1/ingestion/test-scores     → Ingest test scores CSV
 ```
+
 
 ### Response Format
 

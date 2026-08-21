@@ -75,6 +75,12 @@ export const StudentsPage: React.FC<StudentsPageProps> = ({
   }, [schoolId]);
 
   useEffect(() => {
+    if (classes.length > 0 && (!selectedClassId || !classes.some((c) => c.id === selectedClassId))) {
+      setSelectedClassId(classes[0].id);
+    }
+  }, [classes, selectedClassId]);
+
+  useEffect(() => {
     loadStudentsAndAlerts();
   }, [selectedClassId]);
 

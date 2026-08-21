@@ -29,3 +29,18 @@ from app.core.security import (  # noqa: F401
     require_school_access,
 )
 from app.core.firebase import get_firestore_client  # noqa: F401
+from fastapi import Query
+from pydantic import BaseModel
+
+
+class PaginationParams(BaseModel):
+    skip: int = 0
+    limit: int = 50
+
+
+def get_pagination(
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(50, ge=1, le=100, description="Max number of records to return"),
+) -> PaginationParams:
+    return PaginationParams(skip=skip, limit=limit)
+

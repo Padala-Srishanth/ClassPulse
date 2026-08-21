@@ -1,7 +1,7 @@
 # ClassPulse API
 
 > **AI-driven early learning-gap detection system**  
-> Phase 1 — Server Foundation
+> Phase 2 — Data & Student Management
 
 ClassPulse detects students showing signs of academic decline **weeks before
 conventional exams reveal the problem**, giving teachers explainable,
@@ -32,10 +32,11 @@ actionable early warnings based on data schools already generate.
 | Phase | Description | Status |
 |---|---|---|
 | **Phase 1** | Server / Foundation Setup | ✅ Complete |
-| Phase 2 | Data Ingestion & Student Management | 🔜 Not started |
-| Phase 3 | AI/ML Risk Detection | 🔜 Not started |
+| **Phase 2** | Data Ingestion & Student Management | ✅ Complete |
+| Phase 3 | AI/ML Risk Detection | 🔜 Next |
 | Phase 4 | Teacher Dashboard & Intervention System | 🔜 Not started |
 | Testing | Comprehensive Test Suite | 🔜 Not started |
+
 
 ---
 

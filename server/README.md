@@ -1,7 +1,7 @@
 # ClassPulse API
 
 > **AI-driven early learning-gap detection system**  
-> Phase 2 — Data & Student Management
+> Phase 3 — AI/ML Risk Detection
 
 ClassPulse detects students showing signs of academic decline **weeks before
 conventional exams reveal the problem**, giving teachers explainable,
@@ -33,9 +33,10 @@ actionable early warnings based on data schools already generate.
 |---|---|---|
 | **Phase 1** | Server / Foundation Setup | ✅ Complete |
 | **Phase 2** | Data Ingestion & Student Management | ✅ Complete |
-| Phase 3 | AI/ML Risk Detection | 🔜 Next |
-| Phase 4 | Teacher Dashboard & Intervention System | 🔜 Not started |
+| **Phase 3** | AI/ML Risk Detection | ✅ Complete |
+| Phase 4 | Teacher Dashboard & Intervention System | 🔜 Next |
 | Testing | Comprehensive Test Suite | 🔜 Not started |
+
 
 
 ---
@@ -282,7 +283,15 @@ GET    /api/v1/students/{student_id}/test-scores → List student test scores
 POST   /api/v1/ingestion/attendance      → Ingest attendance CSV
 POST   /api/v1/ingestion/homework        → Ingest homework CSV
 POST   /api/v1/ingestion/test-scores     → Ingest test scores CSV
+
+# AI/ML Risk Detection
+POST   /api/v1/risk/analyze/student/{student_id} → Run risk analysis on student
+POST   /api/v1/risk/analyze/class/{class_id}     → Run risk analysis on class cohort
+GET    /api/v1/risk/students/{student_id}/latest → Get latest active risk alert
+GET    /api/v1/risk/students/{student_id}/history→ Get risk alert history
+GET    /api/v1/risk/classes/{class_id}/latest    → Get active risk alerts in class
 ```
+
 
 
 ### Response Format

@@ -125,7 +125,10 @@ class HomeworkRecord(BaseModel):
 class TestScoreRecord(BaseModel):
     """One test/assessment score for one student."""
 
+    __test__ = False
+
     id: str
+
     student_id: str
     school_id: str
     class_id: str

@@ -20,7 +20,7 @@ Phase 2 will add:
 
 from fastapi import APIRouter
 
-from app.api.v1 import classes, health, ingestion, schools, students, users
+from app.api.v1 import classes, health, ingestion, risk, schools, students, users
 
 # ---------------------------------------------------------------------------
 # V1 router — all current routes live under /api/v1
@@ -33,9 +33,9 @@ v1_router.include_router(users.router, prefix="/users")
 v1_router.include_router(classes.router, prefix="/classes")
 v1_router.include_router(students.router, prefix="/students")
 v1_router.include_router(ingestion.router, prefix="/ingestion")
+v1_router.include_router(risk.router, prefix="/risk")
 
-# Phase 3+: uncomment and add new routers here
-# v1_router.include_router(risk.router, prefix="/risk", tags=["Risk Analysis"])
+# Phase 4+: uncomment and add new routers here
 # v1_router.include_router(interventions.router, prefix="/interventions", tags=["Interventions"])
 
 # ---------------------------------------------------------------------------
@@ -43,4 +43,5 @@ v1_router.include_router(ingestion.router, prefix="/ingestion")
 # ---------------------------------------------------------------------------
 api_router = APIRouter(prefix="/api")
 api_router.include_router(v1_router)
+
 

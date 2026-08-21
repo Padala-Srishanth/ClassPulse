@@ -92,6 +92,8 @@ class HomeworkResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 class TestScoreCreate(BaseModel):
+    __test__ = False
+
     student_id: str = Field(..., min_length=1)
     school_id: str = Field(..., min_length=1)
     class_id: str = Field(..., min_length=1)
@@ -104,7 +106,10 @@ class TestScoreCreate(BaseModel):
 
 
 class TestScoreResponse(BaseModel):
+    __test__ = False
+
     id: str
+
     student_id: str
     school_id: str
     class_id: str

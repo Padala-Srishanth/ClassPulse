@@ -20,11 +20,15 @@ import { RiskAlert, SchoolClass, Student } from '../types';
 interface DashboardPageProps {
   onSelectStudent: (studentId: string) => void;
   onOpenIntervention: (student: Student) => void;
+  onOpenAttendance?: (classId: string, className: string, students: Student[]) => void;
+  onOpenCreateStudent?: () => void;
 }
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({
   onSelectStudent,
   onOpenIntervention,
+  onOpenAttendance,
+  onOpenCreateStudent,
 }) => {
   const { schoolId } = useAuth();
   const [classes, setClasses] = useState<SchoolClass[]>([]);
@@ -86,6 +90,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     }
   };
 
+  const selectedClassObj = classes.find((c) => c.id === selectedClassId);
+  const selectedClassName = selectedClassObj ? selectedClassObj.name : 'Class';
+
   const highRiskAlerts = alerts.filter((a) => a.risk_level === 'HIGH');
   const medRiskAlerts = alerts.filter((a) => a.risk_level === 'MEDIUM');
   const lowRiskCount = Math.max(0, students.length - alerts.length);
@@ -101,7 +108,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
           {classes.length > 0 && (
             <select
               className="form-select"
@@ -117,16 +124,33 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </select>
           )}
 
+          {onOpenAttendance && (
+            <button
+              className="btn btn-outline"
+              onClick={() => onOpenAttendance(selectedClassId, selectedClassName, students)}
+              disabled={students.length === 0}
+            >
+              Take Attendance
+            </button>
+          )}
+
+          {onOpenCreateStudent && (
+            <button className="btn btn-outline" onClick={onOpenCreateStudent}>
+              + Add Student
+            </button>
+          )}
+
           <button
             className="btn btn-primary"
             onClick={handleRunClassAnalysis}
             disabled={analyzing || !selectedClassId}
           >
             <Sparkles size={16} />
-            {analyzing ? 'Analyzing Cohort...' : 'Run AI Risk Detection'}
+            {analyzing ? 'Analyzing...' : 'Run AI Detection'}
           </button>
         </div>
       </div>
+
 
       {/* Cohort Overview Metrics */}
       <div className="grid-cols-4">

@@ -24,12 +24,14 @@ interface StudentDetailPageProps {
   studentId: string;
   onBack: () => void;
   onOpenIntervention: (student: Student) => void;
+  onOpenEditStudent?: (student: Student) => void;
 }
 
 export const StudentDetailPage: React.FC<StudentDetailPageProps> = ({
   studentId,
   onBack,
   onOpenIntervention,
+  onOpenEditStudent,
 }) => {
   const [student, setStudent] = useState<Student | null>(null);
   const [analysis, setAnalysis] = useState<StudentRiskAnalysis | null>(null);
@@ -104,7 +106,12 @@ export const StudentDetailPage: React.FC<StudentDetailPageProps> = ({
           Back to Students
         </button>
 
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          {onOpenEditStudent && (
+            <button className="btn btn-outline btn-sm" onClick={() => onOpenEditStudent(student)}>
+              Edit Details
+            </button>
+          )}
           <button className="btn btn-outline btn-sm" onClick={handleReanalyze} disabled={reanalyzing}>
             <RefreshCw size={14} className={reanalyzing ? 'spin' : ''} />
             {reanalyzing ? 'Recalculating...' : 'Refresh AI Analysis'}
@@ -115,6 +122,7 @@ export const StudentDetailPage: React.FC<StudentDetailPageProps> = ({
           </button>
         </div>
       </div>
+
 
       {/* Student Profile Card & Risk Score Banner */}
       <div

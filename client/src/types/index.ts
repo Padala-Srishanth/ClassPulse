@@ -39,8 +39,10 @@ export interface Student {
   name: string;
   grade: string;
   section: string;
+  parent_contact?: string;
   status: string;
 }
+
 
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'INSUFFICIENT_DATA';
 

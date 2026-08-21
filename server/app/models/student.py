@@ -31,9 +31,11 @@ class Student(BaseModel):
     name: str
     grade: str
     section: str
+    parent_contact: Optional[str] = None
     status: StudentStatus = StudentStatus.ACTIVE
     created_at: datetime = Field(default_factory=lambda: datetime.now(tz=timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(tz=timezone.utc))
+
 
     # Note: date_of_birth intentionally omitted in MVP to minimise PII.
     # Add if Phase 3 requires age-group analysis.

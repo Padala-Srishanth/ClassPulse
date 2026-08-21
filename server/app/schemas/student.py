@@ -17,6 +17,7 @@ class StudentCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=150)
     grade: str = Field(..., min_length=1, max_length=20)
     section: str = Field(..., min_length=1, max_length=20)
+    parent_contact: Optional[str] = Field(None, max_length=100)
 
 
 class StudentUpdate(BaseModel):
@@ -25,6 +26,7 @@ class StudentUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=150)
     grade: Optional[str] = Field(None, min_length=1, max_length=20)
     section: Optional[str] = Field(None, min_length=1, max_length=20)
+    parent_contact: Optional[str] = Field(None, max_length=100)
     status: Optional[StudentStatus] = None
 
 
@@ -36,6 +38,7 @@ class StudentResponse(BaseModel):
     name: str
     grade: str
     section: str
+    parent_contact: Optional[str] = None
     status: StudentStatus
     created_at: str
     updated_at: str
@@ -50,7 +53,9 @@ class StudentResponse(BaseModel):
             name=student.name,
             grade=student.grade,
             section=student.section,
+            parent_contact=getattr(student, "parent_contact", None),
             status=student.status,
             created_at=student.created_at.isoformat(),
             updated_at=student.updated_at.isoformat(),
         )
+

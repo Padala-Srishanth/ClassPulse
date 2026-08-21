@@ -45,7 +45,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       try {
         const clsList = await classesApi.listSchoolClasses(schoolId);
         setClasses(clsList);
-        if (clsList.length > 0) {
+        if (clsList.length > 0 && !selectedClassId) {
           setSelectedClassId(clsList[0].id);
         }
       } catch (err) {
@@ -56,6 +56,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     }
     loadClasses();
   }, [schoolId]);
+
+  useEffect(() => {
+    if (classes.length > 0 && (!selectedClassId || !classes.some((c) => c.id === selectedClassId))) {
+      setSelectedClassId(classes[0].id);
+    }
+  }, [classes, selectedClassId]);
 
   // Load class data & alerts
   useEffect(() => {

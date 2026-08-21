@@ -81,7 +81,13 @@ def initialise_firebase() -> firebase_admin.App:
                 "Firebase Admin SDK initialised.",
                 extra={"project_id": settings.FIREBASE_PROJECT_ID},
             )
-        _firestore_client = get_local_firestore() if settings.is_development else firestore.client(_firebase_app)
+        if settings.is_development or settings.FIREBASE_PROJECT_ID == "classpulse-demo" or "mock" in settings.FIREBASE_PRIVATE_KEY:
+            _firestore_client = get_local_firestore()
+        else:
+            try:
+                _firestore_client = firestore.client(_firebase_app)
+            except Exception:
+                _firestore_client = get_local_firestore()
     except Exception as exc:
         logger.warning("Firebase credentials skipped or invalid. Operating in local demo mode: %s", exc)
         _firestore_client = get_local_firestore()

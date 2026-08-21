@@ -13,4 +13,11 @@ export const studentsApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  updateStudent: (studentId: string, data: Partial<Student>) =>
+    apiClient<Student>(`/api/v1/students/${studentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
 };
+

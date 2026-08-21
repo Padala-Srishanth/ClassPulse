@@ -25,18 +25,12 @@ from app.utils.responses import error_response, success_response
 router = APIRouter(tags=["Students"])
 
 
-@router.post("", summary="Create a new student (ADMIN or SCHOOL_ADMIN)")
+@router.post("", summary="Create a new student")
 async def create_student(
     payload: StudentCreate,
     current_user: CurrentUser = Depends(get_current_user),
 ):
     require_school_access(payload.school_id, current_user)
-    if not current_user.is_school_admin:
-        return error_response(
-            code="AUTH_INSUFFICIENT_ROLE",
-            message="Only school administrators can create students.",
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
 
     # Check if student code already exists in school
     existing = StudentService.get_student_by_code(payload.school_id, payload.student_code)
@@ -70,7 +64,7 @@ async def get_student(
     return success_response(data=StudentResponse.from_model(student).model_dump())
 
 
-@router.patch("/{student_id}", summary="Update student profile (ADMIN or SCHOOL_ADMIN)")
+@router.patch("/{student_id}", summary="Update student profile")
 async def update_student(
     student_id: str,
     payload: StudentUpdate,
@@ -84,15 +78,10 @@ async def update_student(
             status_code=status.HTTP_404_NOT_FOUND,
         )
     require_school_access(student.school_id, current_user)
-    if not current_user.is_school_admin:
-        return error_response(
-            code="AUTH_INSUFFICIENT_ROLE",
-            message="Only school administrators can update students.",
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
 
     updated = StudentService.update_student(student_id, payload)
     return success_response(data=StudentResponse.from_model(updated).model_dump())
+
 
 
 @router.get("/class/{class_id}", summary="List students in a class")

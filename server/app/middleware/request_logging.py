@@ -84,12 +84,13 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 log_fn = logger.error
 
             log_fn(
-                "%s %s → %d  (%.1f ms)",
+                "%s %s -> %d  (%.1f ms)",
                 request.method,
                 path,
                 status_code,
                 elapsed_ms,
             )
+
 
             # Restore the ContextVar token
             request_id_ctx.reset(token)

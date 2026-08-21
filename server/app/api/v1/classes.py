@@ -13,9 +13,11 @@ from app.api.deps import (
     get_pagination,
     require_school_access,
 )
+from app.schemas.academic import BulkClassAttendanceCreate
 from app.schemas.class_ import ClassCreate, ClassResponse, ClassUpdate
 from app.services.class_service import ClassService
 from app.utils.responses import error_response, success_response
+
 
 router = APIRouter(tags=["Classes"])
 
@@ -91,3 +93,32 @@ async def list_school_classes(
     classes = ClassService.list_school_classes(school_id, skip=pagination.skip, limit=pagination.limit)
     data = [ClassResponse.from_model(c).model_dump() for c in classes]
     return success_response(data=data)
+
+
+@router.post("/{class_id}/attendance", summary="Record class-wide attendance for a date")
+async def record_class_attendance(
+    class_id: str,
+    payload: BulkClassAttendanceCreate,
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    class_obj = ClassService.get_class(class_id)
+    if not class_obj:
+        return error_response(
+            code="CLASS_NOT_FOUND",
+            message="Class not found.",
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+    require_school_access(class_obj.school_id, current_user)
+
+    from app.services.attendance_service import AttendanceService
+    count = AttendanceService.record_bulk_class_attendance(
+        school_id=class_obj.school_id,
+        class_id=class_id,
+        date=payload.date,
+        entries=payload.records,
+    )
+    return success_response(
+        data={"recorded_count": count, "date": payload.date, "class_id": class_id},
+        status_code=status.HTTP_200_OK,
+    )
+

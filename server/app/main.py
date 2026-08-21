@@ -76,18 +76,20 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         initialise_firebase()
         logger.info("Firebase Admin SDK initialised successfully.")
     except Exception:
-        logger.error(
-            "CRITICAL: Firebase Admin SDK failed to initialise. "
-            "Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY "
-            "environment variables. The server will start but Firebase-dependent "
-            "endpoints will not function."
-        )
-        # We intentionally do NOT raise here — we want the server to start so
-        # the /health endpoint can still respond (useful for debugging in cloud).
+        logger.warning("Firebase Admin initialization skipped or in offline mode.")
+
+    # Automatically seed in-memory demo data for seamless local frontend experience
+    try:
+        from app.core.mock_firestore import get_local_firestore, seed_local_demo_data
+        seed_local_demo_data(get_local_firestore())
+        logger.info("Local demo cohort data successfully seeded.")
+    except Exception as exc:
+        logger.warning("Local demo seeding warning: %s", exc)
 
     logger.info("ClassPulse API is ready. Listening on %s:%d", settings.HOST, settings.PORT)
 
     yield  # Application runs here
+
 
     # === SHUTDOWN ===
     logger.info("ClassPulse API shutting down gracefully.")

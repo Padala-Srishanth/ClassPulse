@@ -23,6 +23,17 @@ class AttendanceCreate(BaseModel):
     source: str = "manual"
 
 
+class BulkAttendanceEntry(BaseModel):
+    student_id: str = Field(..., min_length=1)
+    status: AttendanceStatus
+
+
+class BulkClassAttendanceCreate(BaseModel):
+    date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$")
+    records: list[BulkAttendanceEntry] = Field(..., min_length=1)
+
+
+
 class AttendanceResponse(BaseModel):
     id: str
     student_id: str

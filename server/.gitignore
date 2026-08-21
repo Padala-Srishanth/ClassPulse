@@ -1,0 +1,108 @@
+# =============================================================================
+# ClassPulse API — Git Ignore
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# CRITICAL: Secrets — must never be committed
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# Firebase service account key files
+serviceAccountKey.json
+*serviceAccount*.json
+firebase-adminsdk-*.json
+*firebase*.json
+!firebase.json
+
+# Google Cloud credentials
+gcloud-service-key.json
+credentials.json
+*-credentials.json
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env.bak
+
+# Distribution / packaging
+.Python
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.eggs/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+pytest_cache/
+junit*.xml
+
+# mypy / type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# pylint
+pylint.txt
+
+# ---------------------------------------------------------------------------
+# IDE / Editor
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------------------------
+# Logs
+# ---------------------------------------------------------------------------
+*.log
+logs/
+
+# ---------------------------------------------------------------------------
+# Uploads (Phase 2+)
+# ---------------------------------------------------------------------------
+uploads/
+temp/
+tmp/

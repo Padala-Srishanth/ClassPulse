@@ -39,7 +39,9 @@ export async function apiClient<T>(
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
+  const baseUrlClean = BASE_URL.trim().replace(/\/+$/, '');
+  const endpointClean = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = endpoint.startsWith('http') ? endpoint : `${baseUrlClean}${endpointClean}`;
 
   const response = await fetch(url, {
     ...options,

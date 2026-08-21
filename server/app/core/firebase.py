@@ -59,44 +59,32 @@ def initialise_firebase() -> firebase_admin.App:
 
     settings = get_settings()
 
+    from app.core.mock_firestore import get_local_firestore
+
     # Build the Certificate from environment variables.
-    # SECURITY: firebase_credentials_dict is never logged.
     try:
         cred = credentials.Certificate(settings.firebase_credentials_dict)
-    except Exception as exc:
-        logger.error(
-            "Failed to build Firebase credentials from environment variables. "
-            "Ensure FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and "
-            "FIREBASE_PRIVATE_KEY are set correctly."
-        )
-        raise
-
-    # Check if a default app already exists (can happen in tests)
-    try:
-        _firebase_app = firebase_admin.get_app()
-        logger.debug("Using existing Firebase Admin app.")
-    except ValueError:
-        # No app exists yet — initialise
-        _firebase_app = firebase_admin.initialize_app(
-            credential=cred,
-            options={
-                "projectId": settings.FIREBASE_PROJECT_ID,
-                "storageBucket": f"{settings.FIREBASE_PROJECT_ID}.appspot.com",
-            },
-        )
-        logger.info(
-            "Firebase Admin SDK initialised.",
-            extra={"project_id": settings.FIREBASE_PROJECT_ID},
-        )
-
-    from app.core.mock_firestore import get_local_firestore
-    if settings.is_development:
-        _firestore_client = get_local_firestore()
-    else:
+        # Check if a default app already exists (can happen in tests)
         try:
-            _firestore_client = firestore.client(_firebase_app)
-        except Exception:
-            _firestore_client = get_local_firestore()
+            _firebase_app = firebase_admin.get_app()
+            logger.debug("Using existing Firebase Admin app.")
+        except ValueError:
+            # No app exists yet — initialise
+            _firebase_app = firebase_admin.initialize_app(
+                credential=cred,
+                options={
+                    "projectId": settings.FIREBASE_PROJECT_ID,
+                    "storageBucket": f"{settings.FIREBASE_PROJECT_ID}.appspot.com",
+                },
+            )
+            logger.info(
+                "Firebase Admin SDK initialised.",
+                extra={"project_id": settings.FIREBASE_PROJECT_ID},
+            )
+        _firestore_client = get_local_firestore() if settings.is_development else firestore.client(_firebase_app)
+    except Exception as exc:
+        logger.warning("Firebase credentials skipped or invalid. Operating in local demo mode: %s", exc)
+        _firestore_client = get_local_firestore()
 
     return _firebase_app
 

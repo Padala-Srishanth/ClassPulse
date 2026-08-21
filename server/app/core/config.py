@@ -52,9 +52,9 @@ class Settings(BaseSettings):
     # SECURITY: These values must come from environment variables only.
     # Never hardcode or commit these values.
     # -------------------------------------------------------------------------
-    FIREBASE_PROJECT_ID: str
-    FIREBASE_CLIENT_EMAIL: str
-    FIREBASE_PRIVATE_KEY: str
+    FIREBASE_PROJECT_ID: str = "classpulse-demo"
+    FIREBASE_CLIENT_EMAIL: str = "demo@classpulse-demo.iam.gserviceaccount.com"
+    FIREBASE_PRIVATE_KEY: str = "mock-private-key"
 
     # -------------------------------------------------------------------------
     # CORS

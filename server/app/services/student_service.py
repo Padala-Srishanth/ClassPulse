@@ -32,6 +32,7 @@ class StudentService:
             name=data.name,
             grade=data.grade,
             section=data.section,
+            parent_contact=data.parent_contact,
             status=StudentStatus.ACTIVE,
             created_at=now,
             updated_at=now,

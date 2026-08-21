@@ -22,11 +22,24 @@ export const CreateStudentModal: React.FC<CreateStudentModalProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [studentCode, setStudentCode] = useState('');
-  const [classId, setClassId] = useState(defaultClassId || (classes[0]?.id || ''));
-  const [section, setSection] = useState(classes[0]?.section || 'A');
+  const [classId, setClassId] = useState('');
+  const [section, setSection] = useState('A');
   const [parentContact, setParentContact] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (isOpen && classes.length > 0) {
+      const initialClassId = defaultClassId || classes[0].id;
+      if (!classId || !classes.some((c) => c.id === classId)) {
+        setClassId(initialClassId);
+        const selClass = classes.find((c) => c.id === initialClassId);
+        if (selClass) {
+          setSection(selClass.section);
+        }
+      }
+    }
+  }, [isOpen, classes, defaultClassId]);
 
   if (!isOpen) return null;
 
@@ -35,8 +48,13 @@ export const CreateStudentModal: React.FC<CreateStudentModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const targetClassId = classId || (classes[0]?.id || '');
     if (!name.trim() || !studentCode.trim()) {
       setError('Please provide both Full Name and Roll Number.');
+      return;
+    }
+    if (!targetClassId) {
+      setError('Please select a valid class.');
       return;
     }
 
@@ -45,13 +63,12 @@ export const CreateStudentModal: React.FC<CreateStudentModalProps> = ({
     try {
       await studentsApi.createStudent({
         school_id: schoolId,
-        class_id: classId,
+        class_id: targetClassId,
         student_code: studentCode.trim().toUpperCase(),
         name: name.trim(),
         grade,
         section: section.trim().toUpperCase(),
         parent_contact: parentContact.trim() || undefined,
-        status: 'ACTIVE',
       });
       onSuccess();
       onClose();

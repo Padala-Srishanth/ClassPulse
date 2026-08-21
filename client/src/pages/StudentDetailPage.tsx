@@ -19,6 +19,8 @@ import { studentsApi } from '../api/students';
 import { riskApi } from '../api/risk';
 import { interventionsApi } from '../api/interventions';
 import { Intervention, RiskAlert, Student, StudentRiskAnalysis } from '../types';
+import { calculateAcademicGrade } from '../utils/grading';
+
 
 interface StudentDetailPageProps {
   studentId: string;
@@ -160,13 +162,42 @@ export const StudentDetailPage: React.FC<StudentDetailPageProps> = ({
               <RiskBadge level={analysis.risk_level} score={analysis.risk_score} />
             </div>
             <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '4px' }}>
-              Student ID: <strong>{student.student_code}</strong> • Class: <strong>{student.grade}-{student.section}</strong> • Analysis Period: <strong>{analysis.analysis_period}</strong>
+              Roll Number: <strong>{student.student_code}</strong> • Class: <strong>Grade {student.grade}-{student.section}</strong> • Status: <strong>{student.status}</strong>
             </p>
+            {student.parent_contact && (
+              <p style={{ color: '#4338ca', fontSize: '0.82rem', marginTop: '2px', fontWeight: 600 }}>
+                📞 Parent Contact: {student.parent_contact}
+              </p>
+            )}
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '24px', textAlign: 'right' }}>
-          <div>
+        <div style={{ display: 'flex', gap: '28px', alignItems: 'center' }}>
+          {/* Exam-based Academic Grade */}
+          <div style={{ textAlign: 'right' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>
+              Exam Grade
+            </span>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'flex-end', gap: '6px' }}>
+              {(() => {
+                const testScore = analysis.trends?.recent_test_average ?? analysis.baseline?.baseline_test_average;
+                const gradeInfo = calculateAcademicGrade(testScore !== null && testScore !== undefined ? testScore * 100 : null);
+                return (
+                  <>
+                    <span style={{ fontSize: '1.8rem', fontWeight: 800, color: gradeInfo.color }}>
+                      {gradeInfo.grade}
+                    </span>
+                    <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>
+                      ({gradeInfo.label})
+                    </span>
+                  </>
+                );
+              })()}
+            </div>
+
+          </div>
+
+          <div style={{ textAlign: 'right' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>
               Risk Score
             </span>
@@ -176,6 +207,7 @@ export const StudentDetailPage: React.FC<StudentDetailPageProps> = ({
           </div>
         </div>
       </div>
+
 
       {/* Grid: Explainability & Baseline Comparison */}
       <div className="grid-cols-2">

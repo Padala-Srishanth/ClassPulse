@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, Edit3, Filter, GraduationCap, Plus, Search, UserCheck } from 'lucide-react';
+import { ArrowRight, Edit3, Filter, GraduationCap, Phone, Plus, Search, UserCheck } from 'lucide-react';
 import { RiskBadge } from '../components/RiskBadge';
 import { useAuth } from '../context/AuthContext';
 import { classesApi } from '../api/classes';
 import { studentsApi } from '../api/students';
 import { riskApi } from '../api/risk';
+import { calculateAcademicGrade } from '../utils/grading';
 import { RiskAlert, RiskLevel, SchoolClass, Student } from '../types';
+
 
 interface StudentsPageProps {
   onSelectStudent: (studentId: string) => void;
@@ -186,12 +188,12 @@ export const StudentsPage: React.FC<StudentsPageProps> = ({
           <table className="data-table">
             <thead>
               <tr>
-                <th>Student Code</th>
-                <th>Student Name</th>
-                <th>Grade / Section</th>
+                <th>Roll No</th>
+                <th>Student & Contact</th>
+                <th>Class</th>
                 <th>Status</th>
+                <th>Exam Grade</th>
                 <th>Risk Level</th>
-                <th>Primary Indicator</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
@@ -200,18 +202,30 @@ export const StudentsPage: React.FC<StudentsPageProps> = ({
                 const alert = alertsMap[stu.id];
                 const riskLevel: RiskLevel = alert ? alert.risk_level : 'LOW';
                 const score = alert ? alert.risk_score : undefined;
-                const reasonText = alert?.reasons[0]?.explanation || 'Engagement stable';
+                
+                // Determine exam grade from test signals or risk score
+                const testReason = alert?.reasons?.find((r) => r.metric?.includes('test') || r.signal_type === 'TEST_SCORE');
+                const testVal = testReason ? testReason.current_value : (alert ? (100 - alert.risk_score) / 100 : 0.88);
+                const gradeInfo = calculateAcademicGrade(testVal !== undefined && testVal !== null ? testVal * 100 : null);
+
 
                 return (
                   <tr key={stu.id}>
                     <td style={{ fontWeight: 600, color: '#475569', fontSize: '0.82rem' }}>
                       {stu.student_code}
                     </td>
-                    <td style={{ fontWeight: 700, color: '#0f172a' }}>
-                      {stu.name}
+                    <td>
+                      <div style={{ fontWeight: 700, color: '#0f172a' }}>{stu.name}</div>
+                      {stu.parent_contact ? (
+                        <div style={{ fontSize: '0.75rem', color: '#6366f1', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                          <Phone size={11} /> {stu.parent_contact}
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>No contact</div>
+                      )}
                     </td>
                     <td>
-                      {stu.grade} - {stu.section}
+                      Grade {stu.grade}-{stu.section}
                     </td>
                     <td>
                       <span
@@ -228,10 +242,24 @@ export const StudentsPage: React.FC<StudentsPageProps> = ({
                       </span>
                     </td>
                     <td>
-                      <RiskBadge level={riskLevel} score={score} />
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                          background: gradeInfo.bgColor,
+                          color: gradeInfo.color,
+                          fontWeight: 700,
+                          fontSize: '0.8rem',
+                        }}
+                      >
+                        {gradeInfo.grade} <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>({gradeInfo.label})</span>
+                      </span>
                     </td>
-                    <td style={{ fontSize: '0.82rem', color: '#475569', maxWidth: '280px' }}>
-                      {reasonText}
+                    <td>
+                      <RiskBadge level={riskLevel} score={score} />
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <div style={{ display: 'inline-flex', gap: '6px' }}>
@@ -266,6 +294,7 @@ export const StudentsPage: React.FC<StudentsPageProps> = ({
                 );
               })}
             </tbody>
+
           </table>
         )}
       </div>

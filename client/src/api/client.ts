@@ -49,7 +49,13 @@ export async function apiClient<T>(
   const json: ApiResponse<T> = await response.json();
 
   if (!response.ok || !json.success) {
-    const errorMsg = json.error?.message || `Request failed with status ${response.status}`;
+    let errorMsg = json.error?.message || `Request failed with status ${response.status}`;
+    if (json.error?.details && Array.isArray(json.error.details) && json.error.details.length > 0) {
+      const detailStr = json.error.details
+        .map((d: any) => `${d.loc ? d.loc.filter((l: string) => l !== 'body').join('.') + ': ' : ''}${d.msg}`)
+        .join('; ');
+      errorMsg = `${errorMsg} (${detailStr})`;
+    }
     throw new Error(errorMsg);
   }
 

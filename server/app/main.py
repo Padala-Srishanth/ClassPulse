@@ -141,11 +141,11 @@ def create_application() -> FastAPI:
     #    are handled before any auth or business logic runs.
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=_settings.cors_origins_list,
+        allow_origin_regex=r"https?://.*",
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
-        expose_headers=["X-Request-ID"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"],
     )
 
     # 2. Request logging — generates request_id, logs timing and status.

@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(idToken);
       
       // Fetch user profile from backend
-      const res = await fetch('/api/v1/users/me', {
+      const res = await apiFetch('/api/v1/users/me', {
         headers: { Authorization: `Bearer ${idToken}` },
       });
       const data = await res.json();

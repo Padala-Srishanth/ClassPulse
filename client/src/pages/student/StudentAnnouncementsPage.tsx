@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Bell, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../api/client';
 
 interface Announcement {
   id: string; title: string; message: string; target: string;
@@ -21,7 +22,7 @@ export const StudentAnnouncementsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/v1/student/announcements', { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch('/api/v1/student/announcements', { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json())
       .then(j => { if (j.success) setAnnouncements(j.data); })
       .finally(() => setLoading(false));

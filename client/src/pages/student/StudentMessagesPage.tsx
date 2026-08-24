@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, MessageCircle, RefreshCw, Send } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../api/client';
 
 interface MeetingRequest {
   id: string; meeting_type: string; subject: string; status: string;
@@ -28,7 +29,7 @@ export const StudentMessagesPage: React.FC = () => {
   });
 
   const loadRequests = () => {
-    fetch('/api/v1/student/meeting-requests', { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch('/api/v1/student/meeting-requests', { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json())
       .then(j => { if (j.success) setRequests(j.data); })
       .finally(() => setLoading(false));
@@ -48,7 +49,7 @@ export const StudentMessagesPage: React.FC = () => {
         requested_to_name: form.requested_to_name,
         meeting_type: form.meeting_type,
       });
-      const res = await fetch(`/api/v1/student/meeting-requests?${params}`, {
+      const res = await apiFetch(`/api/v1/student/meeting-requests?${params}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });

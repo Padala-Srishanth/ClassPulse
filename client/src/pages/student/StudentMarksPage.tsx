@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BookOpen, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../api/client';
 
 const GRADE_COLORS: Record<string, { bg: string; color: string }> = {
   'A+': { bg: '#dcfce7', color: '#15803d' },
@@ -17,7 +18,7 @@ export const StudentMarksPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/v1/student/marks', { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch('/api/v1/student/marks', { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json())
       .then(j => { if (j.success) setData(j.data); })
       .finally(() => setLoading(false));

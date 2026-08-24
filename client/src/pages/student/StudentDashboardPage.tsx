@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Activity, BookOpen, CalendarDays, GraduationCap, RefreshCw, TrendingDown, TrendingUp } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { AnnouncementsWidget } from '../../components/AnnouncementsWidget';
+import { apiFetch } from '../../api/client';
 
 interface StudentDashboardPageProps {
   onNavigate?: (page: string) => void;
@@ -18,8 +19,8 @@ export const StudentDashboardPage: React.FC<StudentDashboardPageProps> = ({ onNa
       setLoading(true);
       try {
         const [attRes, marksRes] = await Promise.all([
-          fetch('/api/v1/student/attendance', { headers: { Authorization: `Bearer ${token}` } }),
-          fetch('/api/v1/student/marks', { headers: { Authorization: `Bearer ${token}` } }),
+          apiFetch('/api/v1/student/attendance', { headers: { Authorization: `Bearer ${token}` } }),
+          apiFetch('/api/v1/student/marks', { headers: { Authorization: `Bearer ${token}` } }),
         ]);
         const [attJson, marksJson] = await Promise.all([attRes.json(), marksRes.json()]);
         if (attJson.success) setAttendance(attJson.data);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CalendarDays, CheckCircle2, Clock, RefreshCw, XCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../api/client';
 
 export const StudentAttendancePage: React.FC = () => {
   const { token } = useAuth();
@@ -8,7 +9,7 @@ export const StudentAttendancePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/v1/student/attendance', { headers: { Authorization: `Bearer ${token}` } })
+    apiFetch('/api/v1/student/attendance', { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json())
       .then(j => { if (j.success) setData(j.data); })
       .finally(() => setLoading(false));

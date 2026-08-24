@@ -44,9 +44,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   // Load classes on mount
   useEffect(() => {
     async function loadClasses() {
-      if (!schoolId) return;
+      const sid = schoolId || 'school-001';
       try {
-        const clsList = await classesApi.listSchoolClasses(schoolId);
+        const clsList = await classesApi.listSchoolClasses(sid);
         setClasses(clsList);
         if (clsList.length > 0 && !selectedClassId) {
           setSelectedClassId(clsList[0].id);

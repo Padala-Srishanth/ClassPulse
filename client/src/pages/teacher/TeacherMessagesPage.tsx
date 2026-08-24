@@ -1,26 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, CheckCircle2, MessageCircle, RefreshCw, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle2, Clock, MessageCircle, MessageSquare, RefreshCw, XCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../api/client';
 
 interface MeetingRequest {
   id: string;
   meeting_type: string;
+  requested_by: string;
+  requested_by_name: string;
+  requested_to: string;
+  requested_to_name: string;
   subject: string;
   message: string;
-  status: string;
-  requested_by_name: string;
   proposed_date: string;
-  proposed_time?: string;
+  proposed_time: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
   created_at: string;
-  response_note?: string;
 }
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   PENDING: { bg: '#fffbeb', text: '#d97706' },
   ACCEPTED: { bg: '#f0fdf4', text: '#16a34a' },
-  DECLINED: { bg: '#fef2f2', text: '#ef4444' },
+  REJECTED: { bg: '#fef2f2', text: '#ef4444' },
   COMPLETED: { bg: '#eef2ff', text: '#4f46e5' },
-  CANCELLED: { bg: '#f8fafc', text: '#64748b' },
 };
 
 export const TeacherMessagesPage: React.FC = () => {
@@ -31,7 +33,7 @@ export const TeacherMessagesPage: React.FC = () => {
   const loadRequests = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/student/meeting-requests', {
+      const res = await apiFetch('/api/v1/student/meeting-requests', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();

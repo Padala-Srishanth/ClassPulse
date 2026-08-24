@@ -3,6 +3,7 @@ import { BookOpen, CheckCircle2, GraduationCap, Plus, RefreshCw, Save, X } from 
 import { useAuth } from '../../context/AuthContext';
 import { classesApi } from '../../api/classes';
 import { studentsApi } from '../../api/students';
+import { apiFetch } from '../../api/client';
 
 interface Exam {
   id: string; school_id: string; class_id: string; teacher_id: string;
@@ -32,13 +33,16 @@ export const ExamsPage: React.FC = () => {
   });
 
   useEffect(() => {
-    classesApi.listSchoolClasses('school-001').then((cls: any) => setClasses(cls));
+    classesApi.listSchoolClasses('school-001').then((c: any) => {
+      setClasses(c);
+      if (c.length > 0) setSelectedClass(c[0].id);
+    });
   }, []);
 
   useEffect(() => {
     if (!selectedClass) { setExams([]); return; }
     setLoading(true);
-    fetch(`/api/v1/exams/class/${selectedClass}`, {
+    apiFetch(`/api/v1/exams/class/${selectedClass}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())
@@ -49,7 +53,7 @@ export const ExamsPage: React.FC = () => {
   }, [selectedClass]);
 
   const loadExamResults = async (examId: string) => {
-    const res = await fetch(`/api/v1/exams/${examId}/results`, {
+    const res = await apiFetch(`/api/v1/exams/${examId}/results`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const json = await res.json();
@@ -60,7 +64,7 @@ export const ExamsPage: React.FC = () => {
     if (!examForm.exam_name || !examForm.subject || !examForm.exam_date || !selectedClass) return;
     setSaving(true);
     try {
-      const res = await fetch('/api/v1/exams', {
+      const res = await apiFetch('/api/v1/exams', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -85,7 +89,7 @@ export const ExamsPage: React.FC = () => {
       const results = students
         .filter(s => marks[s.id] !== undefined && marks[s.id] !== '')
         .map(s => ({ student_id: s.id, obtained_marks: parseFloat(marks[s.id]) }));
-      const res = await fetch(`/api/v1/exams/${selectedExam.id}/results`, {
+      const res = await apiFetch(`/api/v1/exams/${selectedExam.id}/results`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ results }),

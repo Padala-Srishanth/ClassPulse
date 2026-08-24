@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Bell, Calendar, Megaphone, RefreshCw, Sparkles, UserCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { AnnouncementItem } from '../../components/AnnouncementsWidget';
+import { apiFetch } from '../../api/client';
 
 const TARGET_TAGS: Record<string, { label: string; bg: string; text: string; border: string }> = {
   ALL_SCHOOL: { label: 'All School', bg: '#fdf2f8', text: '#db2777', border: '#fbcfe8' },
@@ -21,7 +22,7 @@ export const TeacherAnnouncementsPage: React.FC = () => {
     if (!token) return;
     try {
       setLoading(true);
-      const res = await fetch('/api/v1/announcements', {
+      const res = await apiFetch('/api/v1/announcements', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Bell, ChevronRight, Megaphone, Sparkles, UserCheck, Calendar, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { apiFetch } from '../api/client';
 
 export interface AnnouncementItem {
   id: string;
@@ -40,7 +41,7 @@ export const AnnouncementsWidget: React.FC<AnnouncementsWidgetProps> = ({
     if (!token) return;
     try {
       setLoading(true);
-      const res = await fetch('/api/v1/announcements', {
+      const res = await apiFetch('/api/v1/announcements', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();

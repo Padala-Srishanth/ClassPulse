@@ -20,6 +20,39 @@ export interface ApiResponse<T> {
   };
 }
 
+export function getApiUrl(endpoint: string): string {
+  const baseUrlClean = BASE_URL.trim().replace(/\/+$/, '');
+  const endpointClean = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return endpoint.startsWith('http') ? endpoint : `${baseUrlClean}${endpointClean}`;
+}
+
+export async function apiFetch(endpoint: string, options: RequestInit = {}): Promise<Response> {
+  const headers = new Headers(options.headers || {});
+  
+  if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  const savedDemo = localStorage.getItem('classpulse_demo_user');
+  let token = 'mock-teacher-token';
+  if (savedDemo) {
+    try {
+      token = JSON.parse(savedDemo).token || token;
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  if (!headers.has('Authorization') && token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
+  return fetch(getApiUrl(endpoint), {
+    ...options,
+    headers,
+  });
+}
+
 export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {}

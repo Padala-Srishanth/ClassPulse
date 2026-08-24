@@ -1,12 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { Layout } from './components/Layout';
-import { LoginPage } from './pages/LoginPage';
+import { RoleSelectionPage } from './pages/RoleSelectionPage';
+
+// Teacher layout & pages
+import { TeacherLayout } from './layouts/TeacherLayout';
 import { DashboardPage } from './pages/DashboardPage';
 import { StudentsPage } from './pages/StudentsPage';
 import { StudentDetailPage } from './pages/StudentDetailPage';
 import { InterventionsPage } from './pages/InterventionsPage';
 import { DataImportPage } from './pages/DataImportPage';
+import { ExamsPage } from './pages/teacher/ExamsPage';
+import { TeacherMessagesPage } from './pages/teacher/TeacherMessagesPage';
+import { TeacherAnnouncementsPage } from './pages/teacher/TeacherAnnouncementsPage';
+
+// Principal layout & pages
+import { PrincipalLayout } from './layouts/PrincipalLayout';
+import { PrincipalDashboardPage } from './pages/principal/PrincipalDashboardPage';
+import { ClassManagementPage } from './pages/principal/ClassManagementPage';
+import { TeacherManagementPage } from './pages/principal/TeacherManagementPage';
+import { PrincipalReportsPage } from './pages/principal/PrincipalReportsPage';
+import { AnnouncementsPage as PrincipalAnnouncementsPage } from './pages/principal/AnnouncementsPage';
+
+// Student layout & pages
+import { StudentLayout } from './layouts/StudentLayout';
+import { StudentDashboardPage } from './pages/student/StudentDashboardPage';
+import { StudentAttendancePage } from './pages/student/StudentAttendancePage';
+import { StudentMarksPage } from './pages/student/StudentMarksPage';
+import { StudentMessagesPage } from './pages/student/StudentMessagesPage';
+import { StudentAnnouncementsPage } from './pages/student/StudentAnnouncementsPage';
+
+// Modals
 import { InterventionModal } from './components/InterventionModal';
 import { CreateStudentModal } from './components/CreateStudentModal';
 import { EditStudentModal } from './components/EditStudentModal';
@@ -16,24 +39,33 @@ import { SchoolClass, Student } from './types';
 
 const MainApp: React.FC = () => {
   const { currentUser, schoolId, loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState<string>('dashboard');
+  const [currentPage, setCurrentPage] = useState<string>('');
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [classes, setClasses] = useState<SchoolClass[]>([]);
 
   // Modals state
   const [interventionStudent, setInterventionStudent] = useState<Student | null>(null);
   const [isInterventionModalOpen, setIsInterventionModalOpen] = useState(false);
-
   const [isCreateStudentOpen, setIsCreateStudentOpen] = useState(false);
-
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [isEditStudentOpen, setIsEditStudentOpen] = useState(false);
-
   const [attendanceClass, setAttendanceClass] = useState<{ id: string; name: string; students: Student[] } | null>(null);
   const [isAttendanceOpen, setIsAttendanceOpen] = useState(false);
 
-  // Key to force refresh sub-views after creation/update
+  // Key to force refresh sub-views
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Set default page when user role changes or logs in
+  useEffect(() => {
+    if (!currentUser) return;
+    if (currentUser.role === 'STUDENT') {
+      setCurrentPage('student-dashboard');
+    } else if (currentUser.role === 'SCHOOL_ADMIN' || currentUser.role === 'ADMIN') {
+      setCurrentPage('principal-dashboard');
+    } else {
+      setCurrentPage('teacher-dashboard');
+    }
+  }, [currentUser?.role]);
 
   useEffect(() => {
     async function loadSchoolClasses() {
@@ -57,7 +89,7 @@ const MainApp: React.FC = () => {
   }
 
   if (!currentUser) {
-    return <LoginPage />;
+    return <RoleSelectionPage />;
   }
 
   const handleOpenIntervention = (student: Student) => {
@@ -75,13 +107,42 @@ const MainApp: React.FC = () => {
     setIsAttendanceOpen(true);
   };
 
-  const renderContent = () => {
+  // 1. STUDENT VIEW
+  if (currentUser.role === 'STUDENT') {
+    return (
+      <StudentLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+        {currentPage === 'student-attendance' && <StudentAttendancePage />}
+        {currentPage === 'student-marks' && <StudentMarksPage />}
+        {currentPage === 'student-messages' && <StudentMessagesPage />}
+        {currentPage === 'student-announcements' && <StudentAnnouncementsPage />}
+        {(currentPage === 'student-dashboard' || !currentPage) && (
+          <StudentDashboardPage onNavigate={setCurrentPage} />
+        )}
+      </StudentLayout>
+    );
+  }
+
+  // 2. PRINCIPAL / SCHOOL ADMIN VIEW
+  if (currentUser.role === 'SCHOOL_ADMIN' || currentUser.role === 'ADMIN') {
+    return (
+      <PrincipalLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+        {currentPage === 'principal-classes' && <ClassManagementPage />}
+        {currentPage === 'principal-teachers' && <TeacherManagementPage />}
+        {currentPage === 'principal-reports' && <PrincipalReportsPage />}
+        {currentPage === 'principal-announcements' && <PrincipalAnnouncementsPage />}
+        {(currentPage === 'principal-dashboard' || !currentPage) && <PrincipalDashboardPage />}
+      </PrincipalLayout>
+    );
+  }
+
+  // 3. TEACHER VIEW (DEFAULT)
+  const renderTeacherContent = () => {
     if (currentPage === 'student-detail' && selectedStudentId) {
       return (
         <StudentDetailPage
           key={`${selectedStudentId}-${refreshKey}`}
           studentId={selectedStudentId}
-          onBack={() => setCurrentPage('students')}
+          onBack={() => setCurrentPage('teacher-students')}
           onOpenIntervention={handleOpenIntervention}
           onOpenEditStudent={handleOpenEditStudent}
         />
@@ -89,20 +150,9 @@ const MainApp: React.FC = () => {
     }
 
     switch (currentPage) {
-      case 'dashboard':
-        return (
-          <DashboardPage
-            key={`dashboard-${refreshKey}`}
-            onSelectStudent={(id) => {
-              setSelectedStudentId(id);
-              setCurrentPage('student-detail');
-            }}
-            onOpenIntervention={handleOpenIntervention}
-            onOpenAttendance={handleOpenAttendance}
-            onOpenCreateStudent={() => setIsCreateStudentOpen(true)}
-          />
-        );
-      case 'students':
+      case 'teacher-announcements':
+        return <TeacherAnnouncementsPage key={`announcements-${refreshKey}`} />;
+      case 'teacher-students':
         return (
           <StudentsPage
             key={`students-${refreshKey}`}
@@ -116,10 +166,15 @@ const MainApp: React.FC = () => {
             onOpenAttendance={handleOpenAttendance}
           />
         );
-      case 'interventions':
+      case 'teacher-exams':
+        return <ExamsPage key={`exams-${refreshKey}`} />;
+      case 'teacher-interventions':
         return <InterventionsPage key={`interventions-${refreshKey}`} />;
-      case 'import':
+      case 'teacher-import':
         return <DataImportPage />;
+      case 'teacher-messages':
+        return <TeacherMessagesPage key={`messages-${refreshKey}`} />;
+      case 'teacher-dashboard':
       default:
         return (
           <DashboardPage
@@ -131,16 +186,17 @@ const MainApp: React.FC = () => {
             onOpenIntervention={handleOpenIntervention}
             onOpenAttendance={handleOpenAttendance}
             onOpenCreateStudent={() => setIsCreateStudentOpen(true)}
+            onNavigate={setCurrentPage}
           />
         );
     }
   };
 
   return (
-    <Layout currentPage={currentPage} onNavigate={setCurrentPage}>
-      {renderContent()}
+    <TeacherLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+      {renderTeacherContent()}
 
-      {/* 1. Intervention Modal */}
+      {/* Intervention Modal */}
       {interventionStudent && (
         <InterventionModal
           studentId={interventionStudent.id}
@@ -156,7 +212,7 @@ const MainApp: React.FC = () => {
         />
       )}
 
-      {/* 2. Create Student Modal */}
+      {/* Create Student Modal */}
       {schoolId && (
         <CreateStudentModal
           schoolId={schoolId}
@@ -170,7 +226,7 @@ const MainApp: React.FC = () => {
         />
       )}
 
-      {/* 3. Edit Student Details Modal */}
+      {/* Edit Student Details Modal */}
       {editingStudent && (
         <EditStudentModal
           student={editingStudent}
@@ -183,7 +239,7 @@ const MainApp: React.FC = () => {
         />
       )}
 
-      {/* 4. Class Attendance Taking Modal */}
+      {/* Class Attendance Taking Modal */}
       {attendanceClass && (
         <TakeAttendanceModal
           classId={attendanceClass.id}
@@ -197,7 +253,7 @@ const MainApp: React.FC = () => {
           }}
         />
       )}
-    </Layout>
+    </TeacherLayout>
   );
 };
 

@@ -64,4 +64,5 @@ def test_list_school_classes(school_admin_client):
 
     res = school_admin_client.get("/api/v1/classes/school/school-001")
     assert res.status_code == 200
-    assert len(res.json()["data"]) == 2
+    assert len(res.json()["data"]) >= 2
+

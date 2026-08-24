@@ -1,4 +1,4 @@
-export type UserRole = 'ADMIN' | 'SCHOOL_ADMIN' | 'TEACHER';
+export type UserRole = 'ADMIN' | 'SCHOOL_ADMIN' | 'TEACHER' | 'STUDENT';
 
 export interface User {
   id: string;
@@ -8,6 +8,7 @@ export interface User {
   role: UserRole;
   school_id: string | null;
   status: string;
+  student_id?: string; // Only set for STUDENT role
 }
 
 export interface School {

@@ -100,6 +100,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         status: 'ACTIVE',
       };
       mockToken = 'mock-school-admin-token';
+    } else if (role === 'STUDENT') {
+      demoUser = {
+        id: 'student-uid-001',
+        firebase_uid: 'student-uid-001',
+        email: 'student001@school-001.example.com',
+        name: 'Alex Kumar (Student)',
+        role: 'STUDENT',
+        school_id: schoolId,
+        status: 'ACTIVE',
+        student_id: 'demo-student-001',
+      };
+      mockToken = 'mock-student-token';
     } else {
       demoUser = {
         id: 'teacher-uid-001',

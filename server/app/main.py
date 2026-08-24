@@ -23,6 +23,7 @@ Entry points:
 
 from __future__ import annotations
 
+import os
 import traceback
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
@@ -78,13 +79,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     except Exception:
         logger.warning("Firebase Admin initialization skipped or in offline mode.")
 
-    # Automatically seed in-memory demo data for seamless local frontend experience
-    try:
-        from app.core.mock_firestore import get_local_firestore, seed_local_demo_data
-        seed_local_demo_data(get_local_firestore())
-        logger.info("Local demo cohort data successfully seeded.")
-    except Exception as exc:
-        logger.warning("Local demo seeding warning: %s", exc)
+    # Automatically seed in-memory demo data for seamless local frontend experience (skipped in unit tests)
+    if "PYTEST_CURRENT_TEST" not in os.environ:
+        try:
+            from app.core.mock_firestore import get_local_firestore, seed_local_demo_data
+            seed_local_demo_data(get_local_firestore())
+            logger.info("Local demo cohort data successfully seeded.")
+        except Exception as exc:
+            logger.warning("Local demo seeding warning: %s", exc)
 
     logger.info("ClassPulse API is ready. Listening on %s:%d", settings.HOST, settings.PORT)
 

@@ -21,12 +21,16 @@ Phase 2 will add:
 from fastapi import APIRouter
 
 from app.api.v1 import (
+    announcements,
     classes,
+    exams,
     health,
     ingestion,
     interventions,
+    principal,
     risk,
     schools,
+    student_portal,
     students,
     users,
 )
@@ -44,6 +48,11 @@ v1_router.include_router(students.router, prefix="/students")
 v1_router.include_router(ingestion.router, prefix="/ingestion")
 v1_router.include_router(risk.router, prefix="/risk")
 v1_router.include_router(interventions.router, prefix="/interventions")
+# Phase 5 routes
+v1_router.include_router(principal.router, prefix="/principal")
+v1_router.include_router(exams.router, prefix="/exams")
+v1_router.include_router(announcements.router, prefix="/announcements")
+v1_router.include_router(student_portal.router, prefix="/student")
 
 
 # ---------------------------------------------------------------------------

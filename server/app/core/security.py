@@ -68,6 +68,7 @@ class UserRole(str, Enum):
     ADMIN = "ADMIN"
     SCHOOL_ADMIN = "SCHOOL_ADMIN"
     TEACHER = "TEACHER"
+    STUDENT = "STUDENT"
 
 
 # ---------------------------------------------------------------------------
@@ -94,6 +95,7 @@ class CurrentUser(BaseModel):
     email_verified: bool = False
     role: Optional[UserRole] = None
     school_id: Optional[str] = None
+    student_id: Optional[str] = None  # Set only for STUDENT role from token claims
 
     @property
     def is_admin(self) -> bool:
@@ -107,8 +109,13 @@ class CurrentUser(BaseModel):
 
     @property
     def is_teacher(self) -> bool:
-        """True if the user has teacher-level access (or higher)."""
+        """True if the user has teacher-level access (or higher, but not student)."""
         return self.role in {UserRole.ADMIN, UserRole.SCHOOL_ADMIN, UserRole.TEACHER}
+
+    @property
+    def is_student(self) -> bool:
+        """True if the user is a student."""
+        return self.role == UserRole.STUDENT
 
     @property
     def has_school(self) -> bool:
@@ -164,7 +171,7 @@ async def get_current_user(
         )
 
     # Build the CurrentUser from the decoded token.
-    # Custom Claims (role, school_id) are set by backend admin endpoints.
+    # Custom Claims (role, school_id, student_id) are set by backend admin endpoints.
     uid = decoded.get("uid") or decoded.get("sub", "")
     user = CurrentUser(
         uid=uid,
@@ -172,6 +179,7 @@ async def get_current_user(
         email_verified=decoded.get("email_verified", False),
         role=decoded.get("role"),      # Custom Claim — may be None until provisioned
         school_id=decoded.get("school_id"),  # Custom Claim
+        student_id=decoded.get("student_id"),  # Custom Claim — only for STUDENT role
     )
 
     logger.debug("Authenticated request. uid=%s role=%s", user.uid, user.role)

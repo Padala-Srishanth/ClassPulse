@@ -16,12 +16,14 @@ import { classesApi } from '../api/classes';
 import { studentsApi } from '../api/students';
 import { riskApi } from '../api/risk';
 import { RiskAlert, SchoolClass, Student } from '../types';
+import { AnnouncementsWidget } from '../components/AnnouncementsWidget';
 
 interface DashboardPageProps {
   onSelectStudent: (studentId: string) => void;
   onOpenIntervention: (student: Student) => void;
   onOpenAttendance?: (classId: string, className: string, students: Student[]) => void;
   onOpenCreateStudent?: () => void;
+  onNavigate?: (page: string) => void;
 }
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({
@@ -29,6 +31,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   onOpenIntervention,
   onOpenAttendance,
   onOpenCreateStudent,
+  onNavigate,
 }) => {
   const { schoolId } = useAuth();
   const [classes, setClasses] = useState<SchoolClass[]>([]);
@@ -157,6 +160,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         </div>
       </div>
 
+      {/* Principal Announcements Section */}
+      <AnnouncementsWidget
+        compact={true}
+        maxItems={2}
+        onViewAll={onNavigate ? () => onNavigate('teacher-announcements') : undefined}
+      />
 
       {/* Cohort Overview Metrics */}
       <div className="grid-cols-4">

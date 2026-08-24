@@ -111,15 +111,13 @@ def run_tests():
         "student_id": "stu-101",
         "school_id": "school-001",
         "class_id": "class-10a",
-        "risk_level_at_creation": "HIGH",
-        "intervention_type": "ACADEMIC_TUTORING",
-        "title": "Peer Tutoring & Remedial Math",
-        "action_plan": "Schedule bi-weekly tutoring sessions for algebraic foundations.",
+        "type": "ACADEMIC_SUPPORT",
+        "notes": "Schedule bi-weekly tutoring sessions for algebraic foundations.",
         "follow_up_date": "2024-09-15"
     })
     int_obj = r.get("data", {})
     int_id = int_obj.get("id")
-    record("POST /api/v1/interventions", s, f"Action Plan: {int_obj.get('title')}")
+    record("POST /api/v1/interventions", s, f"Action Plan: {int_obj.get('type')}")
 
     # 14. List Student Interventions
     s, r = api_call("GET", "/api/v1/interventions/student/stu-101")
@@ -133,6 +131,69 @@ def run_tests():
     })
     updated_int = r.get("data", {})
     record("PATCH /api/v1/interventions/{id}", s, f"Status: {updated_int.get('status')} | Outcome: {updated_int.get('outcome')}")
+
+    # 16. Principal Dashboard (using school admin token)
+    def admin_api_call(method, path, data=None):
+        url = BASE_URL + path
+        body = json.dumps(data).encode("utf-8") if data is not None else None
+        req = urllib.request.Request(url, data=body, headers={"Authorization": "Bearer mock-school-admin-token", "Content-Type": "application/json"}, method=method)
+        with urllib.request.urlopen(req) as resp:
+            return resp.status, json.loads(resp.read().decode("utf-8"))
+
+    s, r = admin_api_call("GET", "/api/v1/principal/dashboard")
+    p_data = r.get("data", {})
+    record("GET  /api/v1/principal/dashboard", s, f"Classes: {p_data.get('total_classes')} | Students: {p_data.get('total_students')} | High Risk: {p_data.get('high_risk_students')}")
+
+    # 17. Create Exam (Teacher)
+    s, r = api_call("POST", "/api/v1/exams", {
+        "school_id": "school-001",
+        "class_id": "class-10a",
+        "exam_name": "Unit Test 1 - Algebra",
+        "subject": "Mathematics",
+        "exam_date": "2024-09-01",
+        "max_marks": 50.0
+    })
+    new_exam = r.get("data", {})
+    exam_id = new_exam.get("id")
+    record("POST /api/v1/exams (Create Exam)", s, f"Created: {new_exam.get('exam_name')} | Max Marks: {new_exam.get('max_marks')}")
+
+    # 18. Enter Exam Marks (Teacher)
+    s, r = api_call("POST", f"/api/v1/exams/{exam_id}/results", {
+        "results": [
+            {"student_id": "stu-101", "obtained_marks": 42.0},
+            {"student_id": "stu-102", "obtained_marks": 35.0}
+        ]
+    })
+    record("POST /api/v1/exams/{id}/results (Enter Marks)", s, f"Saved {len(r.get('data', {}).get('saved', []))} student results")
+
+    # 19. Get Exam Results & Class Statistics
+    s, r = api_call("GET", f"/api/v1/exams/{exam_id}/results")
+    stats = r.get("data", {}).get("stats", {})
+    record("GET  /api/v1/exams/{id}/results", s, f"Avg: {stats.get('average_percentage')}% | Pass: {stats.get('pass_percentage')}%")
+
+    # 20. Create Announcement (Principal)
+    s, r = admin_api_call("POST", "/api/v1/announcements", {
+        "title": "Parent-Teacher Meeting",
+        "message": "PTM scheduled for next Friday.",
+        "target": "ALL_SCHOOL"
+    })
+    record("POST /api/v1/announcements", s, f"Created announcement: {r.get('data', {}).get('title')}")
+
+    # 21. Student Portal - Get Own Attendance
+    def student_api_call(method, path, data=None):
+        url = BASE_URL + path
+        body = json.dumps(data).encode("utf-8") if data is not None else None
+        req = urllib.request.Request(url, data=body, headers={"Authorization": "Bearer mock-student-token", "Content-Type": "application/json"}, method=method)
+        with urllib.request.urlopen(req) as resp:
+            return resp.status, json.loads(resp.read().decode("utf-8"))
+
+    s, r = student_api_call("GET", "/api/v1/student/attendance")
+    att_summary = r.get("data", {}).get("summary", {})
+    record("GET  /api/v1/student/attendance", s, f"Attendance: {att_summary.get('attendance_percentage')}% ({att_summary.get('present')} present)")
+
+    # 22. Student Portal - Request Meeting
+    s, r = student_api_call("POST", "/api/v1/student/meeting-requests?subject=Math+Clarification&message=Need+help+with+algebra&proposed_date=2024-09-10&requested_to=teacher-uid-001&requested_to_name=Ms.+Jenkins&meeting_type=STUDENT_TEACHER", {})
+    record("POST /api/v1/student/meeting-requests", s, f"Request ID: {r.get('data', {}).get('id')} | Status: {r.get('data', {}).get('status')}")
 
     print("=" * 78)
     print(f" SUMMARY: {passed_count}/{total_count} APIS PASSED (100% OPERATIONAL)")

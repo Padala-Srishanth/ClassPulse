@@ -181,7 +181,7 @@ export const StudentDetailPage: React.FC<StudentDetailPageProps> = ({
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'flex-end', gap: '6px' }}>
               {(() => {
                 const testScore = analysis.trends?.recent_test_average ?? analysis.baseline?.baseline_test_average;
-                const gradeInfo = calculateAcademicGrade(testScore !== null && testScore !== undefined ? testScore * 100 : null);
+                const gradeInfo = calculateAcademicGrade(testScore !== null && testScore !== undefined ? testScore : null);
                 return (
                   <>
                     <span style={{ fontSize: '1.8rem', fontWeight: 800, color: gradeInfo.color }}>

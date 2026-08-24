@@ -88,6 +88,9 @@ class MockQuery:
     def limit(self, val: int) -> "MockQuery":
         return MockQuery(self._store, self._subcollections, self._filters, self._order_field, self._offset_val, val)
 
+    def get(self) -> List[MockDocumentSnapshot]:
+        return list(self.stream())
+
     def stream(self) -> Generator[MockDocumentSnapshot, None, None]:
         items = list(self._store.items())
         
@@ -296,3 +299,24 @@ def other_teacher_client(app, mock_other_teacher_token):
     with patch("app.core.security.verify_firebase_token", new=AsyncMock(return_value=mock_other_teacher_token)):
         with TestClient(app, headers={"Authorization": "Bearer mock-token"}, raise_server_exceptions=False) as c:
             yield c
+
+
+@pytest.fixture
+def mock_student_token() -> dict:
+    return {
+        "uid": "student-uid-001",
+        "email": "student@school-001.example.com",
+        "email_verified": True,
+        "role": "STUDENT",
+        "school_id": "school-001",
+        "student_id": "demo-student-001",
+        "sub": "student-uid-001",
+    }
+
+
+@pytest.fixture
+def student_client(app, mock_student_token):
+    with patch("app.core.security.verify_firebase_token", new=AsyncMock(return_value=mock_student_token)):
+        with TestClient(app, headers={"Authorization": "Bearer mock-token"}, raise_server_exceptions=False) as c:
+            yield c
+

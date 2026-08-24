@@ -81,12 +81,17 @@ def initialise_firebase() -> firebase_admin.App:
                 "Firebase Admin SDK initialised.",
                 extra={"project_id": settings.FIREBASE_PROJECT_ID},
             )
-        if settings.is_development or settings.FIREBASE_PROJECT_ID == "classpulse-demo" or "mock" in settings.FIREBASE_PRIVATE_KEY:
+        if "mock" in settings.FIREBASE_PRIVATE_KEY or settings.FIREBASE_PROJECT_ID == "classpulse-demo":
             _firestore_client = get_local_firestore()
         else:
             try:
-                _firestore_client = firestore.client(_firebase_app)
-            except Exception:
+                real_client = firestore.client(_firebase_app)
+                # Probe real Firestore connectivity
+                _ = real_client.collection("schools").limit(1).get()
+                _firestore_client = real_client
+                logger.info("Successfully connected to live Cloud Firestore (project: %s)", settings.FIREBASE_PROJECT_ID)
+            except Exception as exc:
+                logger.warning("Cloud Firestore database not found or offline (%s). Operating in local fallback mode.", exc)
                 _firestore_client = get_local_firestore()
     except Exception as exc:
         logger.warning("Firebase credentials skipped or invalid. Operating in local demo mode: %s", exc)
@@ -140,6 +145,15 @@ async def verify_firebase_token(id_token: str) -> Dict[str, Any]:
             "email_verified": True,
             "role": "SCHOOL_ADMIN",
             "school_id": "school-001",
+        }
+    if id_token == "mock-student-token":
+        return {
+            "uid": "student-uid-001",
+            "email": "student001@school-001.example.com",
+            "email_verified": True,
+            "role": "STUDENT",
+            "school_id": "school-001",
+            "student_id": "demo-student-001",
         }
     if id_token == "mock-admin-token":
         return {

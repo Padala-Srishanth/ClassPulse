@@ -30,6 +30,12 @@ async def create_student(
     payload: StudentCreate,
     current_user: CurrentUser = Depends(get_current_user),
 ):
+    if not current_user.is_teacher:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": "AUTH_INSUFFICIENT_ROLE", "message": "Teacher or Admin access required."},
+        )
     require_school_access(payload.school_id, current_user)
 
     # Check if student code already exists in school
@@ -70,6 +76,12 @@ async def update_student(
     payload: StudentUpdate,
     current_user: CurrentUser = Depends(get_current_user),
 ):
+    if not current_user.is_teacher:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": "AUTH_INSUFFICIENT_ROLE", "message": "Teacher or Admin access required."},
+        )
     student = StudentService.get_student(student_id)
     if not student:
         return error_response(

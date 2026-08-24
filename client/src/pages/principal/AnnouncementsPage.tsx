@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Bell, Megaphone, Plus, Send } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../api/client';
 
 type AnnouncementTarget = 'ALL_SCHOOL' | 'TEACHERS' | 'STUDENTS' | 'CLASS' | 'SECTION';
 
@@ -30,7 +31,7 @@ export const AnnouncementsPage: React.FC = () => {
   const loadAnnouncements = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/announcements', {
+      const res = await apiFetch('/api/v1/announcements', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();
@@ -45,7 +46,7 @@ export const AnnouncementsPage: React.FC = () => {
     if (!form.title.trim() || !form.message.trim()) return;
     setSubmitting(true);
     try {
-      const res = await fetch('/api/v1/announcements', {
+      const res = await apiFetch('/api/v1/announcements', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ ...form, expires_at: form.expires_at || undefined }),

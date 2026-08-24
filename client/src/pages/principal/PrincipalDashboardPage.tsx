@@ -13,6 +13,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../api/client';
 
 interface ClassSummary {
   class_id: string;
@@ -86,7 +87,7 @@ export const PrincipalDashboardPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/v1/principal/dashboard', {
+      const res = await apiFetch('/api/v1/principal/dashboard', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();

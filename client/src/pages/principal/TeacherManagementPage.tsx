@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BookOpen, Mail, RefreshCw, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../api/client';
 
 interface Teacher {
   id: string;
@@ -16,7 +17,7 @@ export const TeacherManagementPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/v1/principal/teachers', {
+    apiFetch('/api/v1/principal/teachers', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())

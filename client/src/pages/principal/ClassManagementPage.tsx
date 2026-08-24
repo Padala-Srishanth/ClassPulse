@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AlertCircle, BookOpen, ChevronRight, GraduationCap, RefreshCw, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../api/client';
 
 interface ClassData {
   class_id: string;
@@ -22,7 +23,7 @@ export const ClassManagementPage: React.FC = () => {
   const [reportLoading, setReportLoading] = useState(false);
 
   useEffect(() => {
-    fetch('/api/v1/principal/classes', {
+    apiFetch('/api/v1/principal/classes', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())
@@ -34,7 +35,7 @@ export const ClassManagementPage: React.FC = () => {
     setSelectedClass(classId);
     setReportLoading(true);
     try {
-      const res = await fetch(`/api/v1/principal/classes/${classId}/report`, {
+      const res = await apiFetch(`/api/v1/principal/classes/${classId}/report`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();

@@ -90,14 +90,12 @@ class Settings(BaseSettings):
     @property
     def allow_demo_auth(self) -> bool:
         """
-        True only if mock/demo authentication tokens are permitted.
-        SECURITY: Strictly false in production environments.
+        True if mock/demo authentication tokens are permitted.
+        Defaults to True so deployed demo/portfolio environments (e.g. Render + Vercel)
+        can use demo personas and mock tokens seamlessly.
+        Can be explicitly disabled by setting ENABLE_DEMO_AUTH=false in environment variables.
         """
-        if self.is_production:
-            return False
-        return self.ENABLE_DEMO_AUTH and (
-            self.is_development or self.APP_ENV.lower() in {"test", "testing", "local"}
-        )
+        return self.ENABLE_DEMO_AUTH
 
     @property
     def cors_origins_list(self) -> List[str]:

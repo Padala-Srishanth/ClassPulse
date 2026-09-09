@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, RefreshCw, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../api/client';
 
 interface AbsenteeReport {
   date_filter: string | null;
@@ -23,7 +24,7 @@ export const PrincipalReportsPage: React.FC = () => {
     try {
       const params = new URLSearchParams();
       if (dateFilter) params.set('date', dateFilter);
-      const res = await fetch(`/api/v1/principal/absentees?${params}`, {
+      const res = await apiFetch(`/api/v1/principal/absentees?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();

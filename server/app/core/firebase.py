@@ -151,24 +151,28 @@ async def verify_firebase_token(id_token: str) -> Dict[str, Any]:
                 "role": "TEACHER",
                 "school_id": "school-001",
             }
-        if id_token == "mock-school-admin-token":
+        if id_token.startswith("mock-school-admin-token"):
+            parts = id_token.split(":")
+            s_uid = parts[1] if len(parts) > 1 else "sadmin-uid-001"
             return {
-                "uid": "sadmin-uid-001",
+                "uid": s_uid,
                 "email": "principal@school-001.example.com",
                 "email_verified": True,
                 "role": "SCHOOL_ADMIN",
                 "school_id": "school-001",
             }
-        if id_token == "mock-student-token":
+        if id_token.startswith("mock-student-token"):
+            parts = id_token.split(":")
+            st_uid = parts[1] if len(parts) > 1 else "student-uid-001"
             return {
-                "uid": "student-uid-001",
+                "uid": st_uid,
                 "email": "student001@school-001.example.com",
                 "email_verified": True,
                 "role": "STUDENT",
                 "school_id": "school-001",
                 "student_id": "demo-student-001",
             }
-        if id_token == "mock-admin-token":
+        if id_token.startswith("mock-admin-token"):
             return {
                 "uid": "admin-uid-001",
                 "email": "admin@classpulse.example.com",
@@ -176,6 +180,14 @@ async def verify_firebase_token(id_token: str) -> Dict[str, Any]:
                 "role": "ADMIN",
                 "school_id": None,
             }
+        # Generic fallback for any other mock token (e.g. 'mock-token')
+        return {
+            "uid": "teacher-uid-001",
+            "email": "teacher@school-001.example.com",
+            "email_verified": True,
+            "role": "TEACHER",
+            "school_id": "school-001",
+        }
 
     if _firebase_app is None:
         raise RuntimeError("Firebase has not been initialised.")

@@ -294,8 +294,10 @@ def get_student_trajectory(
 def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -> Dict[str, Any]:
     """Populates Firestore with complete benchmark demo school dataset."""
     settings = get_settings()
-    if settings.is_production:
-        print("[!] ERROR: Demo data seeding is strictly disabled in production environments.")
+    # In live production with a real GCP Firebase project, guard against overwriting live data.
+    # In demo mode (mock Firestore or demo project ID), allow in-memory/demo seeding.
+    if settings.is_production and settings.FIREBASE_PROJECT_ID != "classpulse-demo" and "mock" not in settings.FIREBASE_PRIVATE_KEY:
+        print("[!] ERROR: Demo data seeding is strictly disabled in live production Cloud Firestore.")
         raise RuntimeError("Demo data seeding refused: Production environment detected.")
 
     print("=" * 80)

@@ -131,7 +131,59 @@ export type InterventionType =
   | 'COUNSELING_REFERRAL'
   | 'EXTRA_ASSIGNMENT'
   | 'ONE_ON_ONE_SUPPORT'
+  | 'ONE_ON_ONE_CHECKIN'
+  | 'ATTENDANCE_SUPPORT'
+  | 'PEER_SUPPORT'
+  | 'FOLLOW_UP_REVIEW'
   | 'OTHER';
+
+export type PriorityLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+export type RecommendationStatus =
+  | 'PENDING'
+  | 'APPROVED'
+  | 'DISMISSED'
+  | 'CONVERTED_TO_INTERVENTION'
+  | 'EXPIRED';
+
+export interface InterventionRecommendation {
+  recommendation_id: string;
+  school_id: string;
+  student_id: string;
+  student_name?: string;
+  class_id: string;
+  class_name?: string;
+  risk_alert_id?: string;
+  report_period: string;
+  recommendation_type: InterventionType;
+  priority_level: PriorityLevel;
+  priority_score: number;
+  status: RecommendationStatus;
+  reason_codes: string[];
+  explanation: string;
+  recommended_actions: string[];
+  suggested_follow_up_days: number;
+  created_at: string;
+  updated_at: string;
+  reviewed_by?: string;
+  reviewed_at?: string;
+  dismissal_reason?: string;
+  dismissal_notes?: string;
+  intervention_id?: string;
+  signals_summary?: Record<string, any>;
+  risk_score?: number;
+  risk_level?: string;
+}
+
+export interface RecommendationApprovePayload {
+  type?: InterventionType;
+  notes?: string;
+  follow_up_date?: string;
+}
+
+export interface RecommendationDismissPayload {
+  reason: string;
+  notes?: string;
+}
 
 export type InterventionStatus =
   | 'PLANNED'

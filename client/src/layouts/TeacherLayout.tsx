@@ -13,6 +13,7 @@ import {
   LogOut,
   Megaphone,
   Menu,
+  Sparkles,
   Users,
   X,
 } from 'lucide-react';
@@ -26,6 +27,8 @@ interface TeacherLayoutProps {
 
 const NAV_ITEMS = [
   { id: 'teacher-dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'teacher-recommendations', label: 'Recommendations', icon: Sparkles },
+  { id: 'teacher-interventions', label: 'Interventions', icon: AlertCircle },
   { id: 'teacher-monthly-reports', label: 'Monthly Reports', icon: Activity },
   { id: 'teacher-assignments', label: 'Assignments', icon: FileText },
   { id: 'teacher-doubts', label: 'Student Doubts', icon: HelpCircle },
@@ -33,7 +36,6 @@ const NAV_ITEMS = [
   { id: 'teacher-announcements', label: 'Announcements', icon: Megaphone },
   { id: 'teacher-students', label: 'My Students', icon: Users },
   { id: 'teacher-exams', label: 'Exams & Marks', icon: BookOpen },
-  { id: 'teacher-interventions', label: 'Interventions', icon: AlertCircle },
   { id: 'teacher-import', label: 'Import Data', icon: Database },
 ];
 

@@ -8,6 +8,8 @@ import {
   GraduationCap,
   RefreshCw,
   Shield,
+  Sparkles,
+  ChevronRight,
   TrendingDown,
   TrendingUp,
   Users,
@@ -50,7 +52,7 @@ const StatCard: React.FC<{
   }}
     onMouseEnter={(e) => {
       (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
-      (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)';
+      (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)';
     }}
     onMouseLeave={(e) => {
       (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
@@ -77,6 +79,7 @@ const StatCard: React.FC<{
   </div>
 );
 
+export const PrincipalDashboardPage: React.FC<{ onNavigate?: (page: string) => void }> = ({ onNavigate }) => {
   const { token, schoolId } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [schoolRecs, setSchoolRecs] = useState<any[]>([]);
@@ -137,6 +140,10 @@ const StatCard: React.FC<{
   }
 
   const totalRisk = data.high_risk_students + data.medium_risk_students + data.low_risk_students;
+  const pendingRecs = schoolRecs.filter(r => r.status === 'pending');
+  const urgentRecs = pendingRecs.filter(r => r.priority_level === 'urgent');
+  const highRecs = pendingRecs.filter(r => r.priority_level === 'high');
+  const convertedRecs = schoolRecs.filter(r => r.status === 'converted_to_intervention');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
@@ -169,6 +176,78 @@ const StatCard: React.FC<{
         <StatCard title="Total Teachers" value={data.total_teachers} subtitle="Active staff" icon={BookOpen} bgColor="" textColor="#4f46e5" iconBg="#eef2ff" />
         <StatCard title="Total Classes" value={data.total_classes} subtitle="Active sections" icon={GraduationCap} bgColor="" textColor="#0891b2" iconBg="#e0f2fe" />
         <StatCard title="Active Interventions" value={data.active_interventions} subtitle="In progress" icon={Shield} bgColor="" textColor="#d97706" iconBg="#fffbeb" />
+      </div>
+
+      {/* Support Recommendations Overview Widget */}
+      <div style={{
+        background: 'linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%)',
+        borderRadius: '16px',
+        padding: '24px',
+        border: '1px solid #bbf7d0',
+        boxShadow: '0 4px 12px rgba(5, 150, 105, 0.05)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Sparkles size={20} color="#ffffff" />
+            </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#064e3b' }}>
+                Smart Support & Intervention Recommendations
+              </h3>
+              <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
+                Automated student support insights awaiting educator review
+              </p>
+            </div>
+          </div>
+          {onNavigate && (
+            <button
+              onClick={() => onNavigate('principal-recommendations')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: '#059669',
+                color: 'white',
+                borderRadius: '8px',
+                border: 'none',
+                fontWeight: 600,
+                fontSize: '0.85rem',
+                cursor: 'pointer'
+              }}
+            >
+              Review All Recommendations
+              <ChevronRight size={16} />
+            </button>
+          )}
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+          <div style={{ background: 'white', padding: '14px 18px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Pending Review</span>
+            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', marginTop: 4 }}>{pendingRecs.length}</div>
+            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Advisory actions</span>
+          </div>
+          <div style={{ background: 'white', padding: '14px 18px', borderRadius: '12px', border: '1px solid #fee2e2' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#dc2626', textTransform: 'uppercase' }}>Urgent Priority</span>
+            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#dc2626', marginTop: 4 }}>{urgentRecs.length}</div>
+            <span style={{ fontSize: '0.75rem', color: '#ef4444' }}>Needs rapid attention</span>
+          </div>
+          <div style={{ background: 'white', padding: '14px 18px', borderRadius: '12px', border: '1px solid #fed7aa' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#d97706', textTransform: 'uppercase' }}>High Priority</span>
+            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#d97706', marginTop: 4 }}>{highRecs.length}</div>
+            <span style={{ fontSize: '0.75rem', color: '#f59e0b' }}>Persistent/multi-signal</span>
+          </div>
+          <div style={{ background: 'white', padding: '14px 18px', borderRadius: '12px', border: '1px solid #bbf7d0' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#059669', textTransform: 'uppercase' }}>Approved & Active</span>
+            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#059669', marginTop: 4 }}>{convertedRecs.length}</div>
+            <span style={{ fontSize: '0.75rem', color: '#10b981' }}>Converted to interventions</span>
+          </div>
+        </div>
       </div>
 
       {/* Risk Distribution */}

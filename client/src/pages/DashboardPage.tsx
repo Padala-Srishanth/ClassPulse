@@ -77,6 +77,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
         const activeAlerts = await riskApi.getClassActiveAlerts(selectedClassId);
         setAlerts(activeAlerts);
+
+        const recs = await recommendationsApi.getClassRecommendations(selectedClassId);
+        setClassRecs(recs);
       } catch (err) {
         console.error('Error loading class students/alerts:', err);
       } finally {

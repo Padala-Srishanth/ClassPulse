@@ -32,6 +32,8 @@ def seed_cohort_for_recommendations():
         "name": "Class 10 - A",
         "grade": "10",
         "section": "A",
+        "academic_year": "2024-25",
+        "teacher_ids": ["teacher-uid-001"],
         "status": "ACTIVE",
     })
 
@@ -50,6 +52,8 @@ def seed_cohort_for_recommendations():
         "name": "Class 10 - B",
         "grade": "10",
         "section": "B",
+        "academic_year": "2024-25",
+        "teacher_ids": ["teacher-uid-002"],
         "status": "ACTIVE",
     })
 

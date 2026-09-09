@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { classesApi } from "../../api/classes";
 
 interface Doubt {
   id: string;
@@ -100,19 +101,21 @@ export const TeacherDoubtsPage: React.FC = () => {
 
   useEffect(() => {
     if (!schoolId) return;
-    fetch(`${API_BASE}/classes?school_id=${schoolId}`, { headers: getAuthHeaders() })
-      .then(r => r.json())
-      .then(d => {
-        const cls: ClassItem[] = (d.data || []).map((c: any) => ({
+    classesApi.listSchoolClasses(schoolId)
+      .then((clsList: any) => {
+        const cls: ClassItem[] = (clsList || []).map((c: any) => ({
           id: c.id,
           name: c.name || `Class ${c.grade}-${c.section}`,
           grade: c.grade,
           section: c.section,
         }));
         setClasses(cls);
-        if (cls.length > 0) setSelectedClass(cls[0].id);
+        const preferred = cls.find((c: any) => c.id === 'class-10a')?.id || (cls.length > 0 ? cls[0].id : '');
+        if (preferred) setSelectedClass(preferred);
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error('Failed to load classes for doubts:', err);
+      });
   }, [schoolId, currentUser, authToken]);
 
   useEffect(() => {

@@ -1093,7 +1093,9 @@ class InterventionRecommendationService:
             for sub, scores in subject_scores.items()
         }
         sorted_subjects = sorted(averages.items(), key=lambda x: x[1])
-        weak = [s for s, avg in sorted_subjects if avg < 65.0]
+        weak = [s for s, avg in sorted_subjects if avg <= 70.0]
+        if not weak and sorted_subjects:
+            weak = [sorted_subjects[0][0]]
         return weak[:2]
 
     @classmethod

@@ -1078,8 +1078,9 @@ class InterventionRecommendationService:
         subject_scores: Dict[str, List[float]] = {}
         for r in test_records:
             sub = r.subject or "General"
-            if r.max_marks and r.max_marks > 0:
-                pct = (r.score / r.max_marks) * 100.0
+            max_s = getattr(r, "max_score", None) or getattr(r, "max_marks", None) or 100.0
+            if max_s > 0:
+                pct = (r.score / max_s) * 100.0
                 subject_scores.setdefault(sub, []).append(pct)
 
         averages = {

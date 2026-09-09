@@ -64,6 +64,7 @@ v1_router.include_router(announcements.router, prefix="/announcements")
 v1_router.include_router(student_portal.router, prefix="/student")
 v1_router.include_router(uploads.router, prefix="/uploads")
 v1_router.include_router(monthly_reports.router, prefix="/monthly-reports")
+v1_router.include_router(intervention_recommendations.router, prefix="/intervention-recommendations")
 
 
 # ---------------------------------------------------------------------------

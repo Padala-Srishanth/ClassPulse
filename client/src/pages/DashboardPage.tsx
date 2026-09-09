@@ -99,12 +99,18 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     }
   };
 
+  const [showAllCohort, setShowAllCohort] = useState(false);
+
   const selectedClassObj = classes.find((c) => c.id === selectedClassId);
   const selectedClassName = selectedClassObj ? selectedClassObj.name : 'Class';
 
   const highRiskAlerts = alerts.filter((a) => a.risk_level === 'HIGH');
   const medRiskAlerts = alerts.filter((a) => a.risk_level === 'MEDIUM');
-  const lowRiskCount = Math.max(0, students.length - alerts.length);
+  const lowRiskAlerts = alerts.filter((a) => a.risk_level === 'LOW' || a.risk_level === 'INSUFFICIENT_DATA');
+  const lowRiskCount = lowRiskAlerts.length + Math.max(0, students.length - alerts.length);
+
+  const attentionAlerts = alerts.filter((a) => a.risk_level === 'HIGH' || a.risk_level === 'MEDIUM');
+  const displayedAlerts = showAllCohort ? alerts : attentionAlerts;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
@@ -209,33 +215,52 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
       {/* Urgent Action Priority List */}
       <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
           <div>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Students Requiring Attention Today</h3>
             <p style={{ fontSize: '0.82rem', color: '#64748b' }}>
               Ranked by combined multi-signal deviation from individual historical baselines.
             </p>
           </div>
-          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#4f46e5', background: '#eef2ff', padding: '4px 10px', borderRadius: '6px' }}>
-            {alerts.length} Flagged
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: attentionAlerts.length > 0 ? '#e11d48' : '#16a34a', background: attentionAlerts.length > 0 ? '#fff1f2' : '#f0fdf4', padding: '4px 10px', borderRadius: '6px' }}>
+              {attentionAlerts.length} Flagged
+            </span>
+            {alerts.length > 0 && (
+              <button
+                className="btn btn-outline"
+                style={{ fontSize: '0.8rem', padding: '4px 10px' }}
+                onClick={() => setShowAllCohort(!showAllCohort)}
+              >
+                {showAllCohort ? `Show Flagged Only (${attentionAlerts.length})` : `View All Cohort (${alerts.length})`}
+              </button>
+            )}
+          </div>
         </div>
 
         {loading ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
             Loading student engagement signals...
           </div>
-        ) : alerts.length === 0 ? (
+        ) : displayedAlerts.length === 0 ? (
           <div style={{ padding: '48px 24px', textAlign: 'center', background: '#f8fafc', borderRadius: '12px' }}>
             <CheckCircle2 size={40} color="#16a34a" style={{ margin: '0 auto 12px auto' }} />
             <h4 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#0f172a' }}>All Students On Track</h4>
-            <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: '400px', margin: '4px auto 0 auto' }}>
+            <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: '400px', margin: '4px auto 16px auto' }}>
               No students in this class currently exhibit significant negative deviation from their historical baseline.
             </p>
+            {alerts.length > 0 && (
+              <button
+                className="btn btn-outline"
+                onClick={() => setShowAllCohort(true)}
+              >
+                Inspect All {alerts.length} Students
+              </button>
+            )}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {alerts.map((alertItem) => {
+            {displayedAlerts.map((alertItem) => {
               const matchedStudent = students.find((s) => s.id === alertItem.student_id);
               const studentName = matchedStudent ? matchedStudent.name : `Student (${alertItem.student_id})`;
               const topReason = alertItem.reasons[0]?.explanation || 'Decline detected across engagement metrics';

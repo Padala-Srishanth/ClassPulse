@@ -29,6 +29,7 @@ from app.api.v1 import (
     health,
     ingestion,
     interventions,
+    intervention_recommendations,
     monthly_reports,
     principal,
     risk,

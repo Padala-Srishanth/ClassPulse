@@ -15,6 +15,7 @@ import { useAuth } from '../context/AuthContext';
 import { classesApi } from '../api/classes';
 import { studentsApi } from '../api/students';
 import { riskApi } from '../api/risk';
+import { recommendationsApi } from '../api/recommendations';
 import { RiskAlert, SchoolClass, Student } from '../types';
 import { AnnouncementsWidget } from '../components/AnnouncementsWidget';
 
@@ -38,6 +39,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [selectedClassId, setSelectedClassId] = useState<string>('');
   const [students, setStudents] = useState<Student[]>([]);
   const [alerts, setAlerts] = useState<RiskAlert[]>([]);
+  const [classRecs, setClassRecs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
 

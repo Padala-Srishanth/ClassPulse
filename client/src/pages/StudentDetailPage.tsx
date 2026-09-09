@@ -18,6 +18,7 @@ import { InterventionTimeline } from '../components/InterventionTimeline';
 import { studentsApi } from '../api/students';
 import { riskApi } from '../api/risk';
 import { interventionsApi } from '../api/interventions';
+import { recommendationsApi } from '../api/recommendations';
 import { Intervention, RiskAlert, Student, StudentRiskAnalysis } from '../types';
 import { calculateAcademicGrade } from '../utils/grading';
 

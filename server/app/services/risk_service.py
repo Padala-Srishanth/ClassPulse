@@ -107,6 +107,17 @@ class RiskService:
 
         cls._alerts_collection().document(alert_id).set(risk_alert.to_firestore())
 
+        # 9. Trigger Smart Intervention Recommendation Engine
+        try:
+            from app.services.intervention_recommendation_service import InterventionRecommendationService
+            InterventionRecommendationService.generate_recommendations(
+                student=student,
+                risk_alert_id=alert_id,
+                analysis_period_override=analysis_period,
+            )
+        except Exception as exc:
+            logger.warning("Failed to generate recommendations for student %s: %s", student.id, exc)
+
         return StudentRiskAnalysisResponse(
             student_id=student.id,
             school_id=student.school_id,

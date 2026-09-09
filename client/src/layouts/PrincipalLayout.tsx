@@ -13,6 +13,7 @@ import {
   Megaphone,
   Menu,
   Shield,
+  Sparkles,
   Users,
   X,
 } from 'lucide-react';
@@ -26,6 +27,7 @@ interface PrincipalLayoutProps {
 
 const NAV_ITEMS = [
   { id: 'principal-dashboard', label: 'School Overview', icon: LayoutDashboard },
+  { id: 'principal-recommendations', label: 'Support Recommendations', icon: Sparkles },
   { id: 'principal-monthly-analytics', label: 'Monthly Analytics', icon: Activity },
   { id: 'principal-assignments', label: 'Assignments', icon: FileText },
   { id: 'principal-classes', label: 'Class Management', icon: BookOpen },

@@ -277,6 +277,151 @@ export const StudentDetailPage: React.FC<StudentDetailPageProps> = ({
         </div>
       </div>
 
+      {/* Smart Intervention Recommendations Section */}
+      <div className="card" style={{ border: '1px solid #e2e8f0', background: '#fff' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ background: '#e0e7ff', padding: 6, borderRadius: 8, color: '#4f46e5' }}>
+              <Sparkles size={18} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                Smart Intervention Recommendations
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0 }}>
+                Intelligent, explainable advisory guidance based on current risk signals and previous interventions.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={async () => {
+              try {
+                const recs = await recommendationsApi.analyzeStudent(studentId);
+                setRecommendations(recs);
+              } catch (e: any) {
+                alert(e.message || 'Failed to re-analyze recommendations');
+              }
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 12px',
+              borderRadius: 6,
+              border: '1px solid #cbd5e1',
+              background: '#f8fafc',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              color: '#475569',
+              cursor: 'pointer',
+            }}
+          >
+            <RefreshCw size={14} /> Refresh Recommendations
+          </button>
+        </div>
+
+        {recommendations.length === 0 ? (
+          <div style={{ padding: '24px 16px', textAlign: 'center', background: '#f8fafc', borderRadius: 8, border: '1px dashed #cbd5e1' }}>
+            <p style={{ color: '#64748b', fontSize: '0.88rem', margin: 0 }}>
+              No active intervention recommended at this time. The student is either stable or active interventions are in progress.
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {recommendations.map((rec) => (
+              <div
+                key={rec.recommendation_id}
+                style={{
+                  padding: '16px 18px',
+                  borderRadius: 10,
+                  border: rec.status === 'PENDING' ? (rec.priority_level === 'URGENT' ? '2px solid #f87171' : '1px solid #cbd5e1') : '1px solid #e2e8f0',
+                  background: rec.status === 'PENDING' ? '#f8fafc' : '#ffffff',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.98rem' }}>
+                      {rec.recommendation_type.replace(/_/g, ' ')}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '0.72rem',
+                        padding: '2px 8px',
+                        borderRadius: 999,
+                        fontWeight: 700,
+                        background: rec.priority_level === 'URGENT' ? '#fee2e2' : rec.priority_level === 'HIGH' ? '#ffedd5' : '#e0f2fe',
+                        color: rec.priority_level === 'URGENT' ? '#b91c1c' : rec.priority_level === 'HIGH' ? '#c2410c' : '#0369a1',
+                      }}
+                    >
+                      {rec.priority_level} (Score: {rec.priority_score.toFixed(0)})
+                    </span>
+                    {rec.status === 'CONVERTED_TO_INTERVENTION' && (
+                      <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: 999, background: '#dcfce7', color: '#16a34a', fontWeight: 600 }}>
+                        Approved / Active
+                      </span>
+                    )}
+                    {rec.status === 'DISMISSED' && (
+                      <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: 999, background: '#f1f5f9', color: '#64748b', fontWeight: 600 }}>
+                        Dismissed ({rec.dismissal_reason?.replace(/_/g, ' ')})
+                      </span>
+                    )}
+                  </div>
+
+                  {rec.status === 'PENDING' && (
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={async () => {
+                          const reason = prompt('Dismissal reason (NOT_APPLICABLE, ISSUE_ALREADY_RESOLVED, TEACHER_JUDGMENT):', 'TEACHER_JUDGMENT');
+                          if (!reason) return;
+                          try {
+                            await recommendationsApi.dismissRecommendation(rec.recommendation_id, { reason });
+                            loadAllData();
+                          } catch (e: any) {
+                            alert(e.message || 'Failed to dismiss');
+                          }
+                        }}
+                        style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid #cbd5e1', background: '#fff', color: '#64748b', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        Dismiss
+                      </button>
+                      <button
+                        onClick={async () => {
+                          try {
+                            await recommendationsApi.approveRecommendation(rec.recommendation_id);
+                            loadAllData();
+                          } catch (e: any) {
+                            alert(e.message || 'Failed to approve');
+                          }
+                        }}
+                        style={{ padding: '5px 14px', borderRadius: 6, border: 'none', background: '#4f46e5', color: '#fff', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        Approve Action Plan
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <p style={{ fontSize: '0.86rem', color: '#334155', margin: 0, lineHeight: 1.45 }}>
+                  <strong>Rationale:</strong> {rec.explanation}
+                </p>
+
+                {rec.recommended_actions && rec.recommended_actions.length > 0 && (
+                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: '0.8rem', color: '#475569', lineHeight: 1.5 }}>
+                    {rec.recommended_actions.map((act: string, idx: number) => (
+                      <li key={idx}>{act}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Academic Trend Charts */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>

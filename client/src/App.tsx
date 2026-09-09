@@ -16,10 +16,12 @@ import { TeacherTimetablePage } from './pages/teacher/TeacherTimetablePage';
 import { TeacherAssignmentsPage } from './pages/teacher/TeacherAssignmentsPage';
 import { TeacherDoubtsPage } from './pages/teacher/TeacherDoubtsPage';
 import { TeacherMonthlyReportsPage } from './pages/teacher/TeacherMonthlyReportsPage';
+import { TeacherRecommendationsPage } from './pages/teacher/TeacherRecommendationsPage';
 
 // Principal layout & pages
 import { PrincipalLayout } from './layouts/PrincipalLayout';
 import { PrincipalDashboardPage } from './pages/principal/PrincipalDashboardPage';
+import { PrincipalInterventionRecommendationsPage } from './pages/principal/PrincipalInterventionRecommendationsPage';
 import { PrincipalMonthlyAnalyticsPage } from './pages/principal/PrincipalMonthlyAnalyticsPage';
 import { ClassManagementPage } from './pages/principal/ClassManagementPage';
 import { TeacherManagementPage } from './pages/principal/TeacherManagementPage';
@@ -142,7 +144,8 @@ const MainApp: React.FC = () => {
   if (currentUser.role === 'SCHOOL_ADMIN' || currentUser.role === 'ADMIN') {
     return (
       <PrincipalLayout currentPage={currentPage} onNavigate={setCurrentPage}>
-        {currentPage === 'principal-dashboard' && <PrincipalDashboardPage />}
+        {currentPage === 'principal-dashboard' && <PrincipalDashboardPage onNavigate={setCurrentPage} />}
+        {currentPage === 'principal-recommendations' && <PrincipalInterventionRecommendationsPage />}
         {currentPage === 'principal-monthly-analytics' && <PrincipalMonthlyAnalyticsPage />}
         {currentPage === 'principal-assignments' && <PrincipalAssignmentsPage />}
         {currentPage === 'principal-classes' && <ClassManagementPage />}
@@ -151,7 +154,7 @@ const MainApp: React.FC = () => {
         {currentPage === 'principal-exams' && <ExamManagementPage />}
         {currentPage === 'principal-reports' && <PrincipalReportsPage />}
         {currentPage === 'principal-announcements' && <PrincipalAnnouncementsPage />}
-        {(currentPage === 'principal-dashboard' || !currentPage) && <PrincipalDashboardPage />}
+        {(currentPage === 'principal-dashboard' || !currentPage) && <PrincipalDashboardPage onNavigate={setCurrentPage} />}
       </PrincipalLayout>
     );
   }
@@ -197,6 +200,16 @@ const MainApp: React.FC = () => {
         );
       case 'teacher-exams':
         return <ExamsPage key={`exams-${refreshKey}`} />;
+      case 'teacher-recommendations':
+        return (
+          <TeacherRecommendationsPage
+            key={`recommendations-${refreshKey}`}
+            onSelectStudent={(id) => {
+              setSelectedStudentId(id);
+              setCurrentPage('student-detail');
+            }}
+          />
+        );
       case 'teacher-interventions':
         return <InterventionsPage key={`interventions-${refreshKey}`} />;
       case 'teacher-import':

@@ -74,14 +74,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       if (!selectedClassId) return;
       setLoading(true);
       try {
-        const stus = await studentsApi.listClassStudents(selectedClassId);
-        setStudents(stus);
-
-        const activeAlerts = await riskApi.getClassActiveAlerts(selectedClassId);
-        setAlerts(activeAlerts);
-
-        const recs = await recommendationsApi.getClassRecommendations(selectedClassId);
-        setClassRecs(recs);
+        const [stus, activeAlerts, recs] = await Promise.all([
+          studentsApi.listClassStudents(selectedClassId),
+          riskApi.getClassActiveAlerts(selectedClassId).catch(() => []),
+          recommendationsApi.getClassRecommendations(selectedClassId).catch(() => []),
+        ]);
+        setStudents(stus || []);
+        setAlerts(activeAlerts || []);
+        setClassRecs(recs || []);
       } catch (err) {
         console.error('Error loading class students/alerts:', err);
       } finally {

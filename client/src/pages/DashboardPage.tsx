@@ -178,6 +178,80 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         onViewAll={onNavigate ? () => onNavigate('teacher-announcements') : undefined}
       />
 
+      {/* Recommended Actions Widget */}
+      {(() => {
+        const pendingRecs = classRecs.filter((r) => r.status === 'PENDING');
+        const urgentCount = pendingRecs.filter((r) => r.priority_level === 'URGENT').length;
+        const highCount = pendingRecs.filter((r) => r.priority_level === 'HIGH').length;
+
+        if (pendingRecs.length === 0) return null;
+
+        return (
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+              borderRadius: 14,
+              padding: '20px 24px',
+              color: '#fff',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 16,
+              boxShadow: '0 4px 15px rgba(49, 46, 129, 0.15)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ background: 'rgba(255,255,255,0.15)', padding: 10, borderRadius: 10 }}>
+                <Sparkles size={24} color="#fde047" />
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0 }}>
+                    Recommended Actions
+                  </h3>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {urgentCount > 0 && (
+                      <span style={{ fontSize: '0.75rem', background: '#ef4444', color: '#fff', padding: '2px 8px', borderRadius: 999, fontWeight: 700 }}>
+                        {urgentCount} URGENT
+                      </span>
+                    )}
+                    {highCount > 0 && (
+                      <span style={{ fontSize: '0.75rem', background: '#f97316', color: '#fff', padding: '2px 8px', borderRadius: 999, fontWeight: 700 }}>
+                        {highCount} HIGH PRIORITY
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <p style={{ margin: '4px 0 0', color: '#c7d2fe', fontSize: '0.86rem' }}>
+                  {pendingRecs.length} students have targeted smart recommendations generated from recent attendance and performance trends.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={onNavigate ? () => onNavigate('teacher-recommendations') : undefined}
+              style={{
+                background: '#ffffff',
+                color: '#312e81',
+                border: 'none',
+                padding: '9px 18px',
+                borderRadius: 8,
+                fontSize: '0.88rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              }}
+            >
+              Review Recommendations <ArrowRight size={15} />
+            </button>
+          </div>
+        );
+      })()}
+
       {/* Cohort Overview Metrics */}
       <div className="grid-cols-4">
         <RiskCard

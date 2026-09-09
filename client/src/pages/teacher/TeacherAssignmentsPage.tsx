@@ -97,7 +97,8 @@ export const TeacherAssignmentsPage: React.FC = () => {
     classesApi.listSchoolClasses(currentUser?.school_id || 'school-001')
       .then((clsList: any) => {
         setClasses(clsList);
-        if (clsList.length > 0) setSelectedClass(clsList[0].id);
+        const preferred = clsList.find((c: any) => c.id === 'class-10a')?.id || (clsList.length > 0 ? clsList[0].id : '');
+        if (preferred) setSelectedClass(preferred);
       })
       .catch(() => {});
   }, [currentUser?.school_id]);

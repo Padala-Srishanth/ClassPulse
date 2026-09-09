@@ -77,9 +77,9 @@ const StatCard: React.FC<{
   </div>
 );
 
-export const PrincipalDashboardPage: React.FC = () => {
-  const { token } = useAuth();
+  const { token, schoolId } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
+  const [schoolRecs, setSchoolRecs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,6 +95,12 @@ export const PrincipalDashboardPage: React.FC = () => {
         setData(json.data);
       } else {
         setError(json.error?.message || 'Failed to load dashboard');
+      }
+
+      if (schoolId) {
+        const { recommendationsApi } = await import('../../api/recommendations');
+        const recs = await recommendationsApi.getSchoolRecommendations(schoolId);
+        setSchoolRecs(recs);
       }
     } catch (e: any) {
       setError(e.message || 'Network error');

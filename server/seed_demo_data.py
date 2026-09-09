@@ -35,8 +35,9 @@ import os
 import random
 import sys
 import uuid
+from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 # Ensure server package path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -51,6 +52,7 @@ from app.models.academic import (
     TestScoreRecord,
 )
 from app.models.announcement import Announcement, AnnouncementTarget
+from app.models.assignment import Assignment, AssignmentStatus, AssignmentSubmission, SubmissionStatus
 from app.models.class_ import Class
 from app.models.exam import Exam, ExamResult, ExamStatus
 from app.models.intervention import (
@@ -62,8 +64,10 @@ from app.models.intervention import (
 from app.models.meeting import MeetingRequest, MeetingStatus, MeetingType
 from app.models.school import School
 from app.models.student import Student, StudentStatus
+from app.models.timetable import DayOfWeek, TimetableSlot
 from app.models.user import User, UserRole, UserStatus
 from app.services.risk_service import RiskService
+from app.services.monthly_report_service import MonthlyReportService
 
 # Fix random seed for reproducible, deterministic benchmark data
 random.seed(42)
@@ -172,10 +176,10 @@ SUBJECTS_BY_GRADE = {
 # Date Range Helper (50 School Days = 10 Weeks)
 # ---------------------------------------------------------------------------
 
-def generate_school_days(num_weeks: int = 10, end_date: Optional[date] = None) -> List[str]:
-    """Generates a list of weekday dates (YYYY-MM-DD) for the past num_weeks."""
+def generate_school_days(num_weeks: int = 26, end_date: Optional[date] = None) -> List[str]:
+    """Generates a list of weekday dates (YYYY-MM-DD) for 6 months (Apr-Sep 2026)."""
     if end_date is None:
-        end_date = date.today()
+        end_date = date(2026, 9, 30)
     
     # Adjust end_date to previous Friday if weekend
     while end_date.weekday() >= 5:
@@ -289,6 +293,11 @@ def get_student_trajectory(
 
 def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -> Dict[str, Any]:
     """Populates Firestore with complete benchmark demo school dataset."""
+    settings = get_settings()
+    if settings.is_production:
+        print("[!] ERROR: Demo data seeding is strictly disabled in production environments.")
+        raise RuntimeError("Demo data seeding refused: Production environment detected.")
+
     print("=" * 80)
     print(f"[*] ClassPulse Demo Data Seeding Engine: school_id='{school_id}'")
     print("=" * 80)
@@ -306,13 +315,20 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
         "homework_records": 0,
         "exams": 0,
         "exam_results": 0,
+        "timetable_slots": 0,
+        "teacher_conflicts": 0,
+        "class_conflicts": 0,
+        "assignments": 0,
+        "assignment_submissions": 0,
+        "doubts": 0,
         "interventions": 0,
         "announcements": 0,
         "meeting_requests": 0,
     }
 
+
     # 1. School Setup
-    print("\n[1/9] Seeding Demo School...")
+    print("\n[1/10] Seeding Demo School...")
     school = School(
         id=school_id,
         name="Delhi Public School - Demo Campus",
@@ -326,7 +342,7 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
     counts["schools"] += 1
 
     # 2. Principal & Teacher Accounts
-    print("[2/9] Seeding Principal and 35 Teacher Profiles...")
+    print("[2/10] Seeding Principal and 35 Teacher Profiles...")
     
     # Principal
     principal_user = User(
@@ -354,6 +370,7 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
 
     # Teacher Accounts
     teacher_ids = []
+    teacher_users: Dict[str, User] = {}
     for i, (fn, ln, subj) in enumerate(TEACHER_NAMES):
         t_id = "teacher-uid-001" if i == 0 else f"teacher-uid-{i+1:03d}"
         email = "teacher@school-001.example.com" if i == 0 else f"teacher{i+1}@school-001.example.com"
@@ -367,12 +384,15 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
             role=UserRole.TEACHER,
             school_id=school_id,
             status=UserStatus.ACTIVE,
+            subjects=[subj],
+            assigned_classes=[],
         )
+        teacher_users[t_id] = t_user
         writer.set(db.collection("users").document(t_id), t_user.to_firestore())
         counts["teachers"] += 1
 
     # 3. Classes (Grades 6 to 12, Sections A and B = 14 Classes)
-    print("[3/9] Seeding 14 Classes (Grades 6 to 12, Sections A & B)...")
+    print("[3/10] Seeding 14 Classes (Grades 6 to 12, Sections A & B)...")
     grades = ["6", "7", "8", "9", "10", "11", "12"]
     sections = ["A", "B"]
     classes_list: List[Class] = []
@@ -402,9 +422,9 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
             teacher_idx += 2
 
     # 4. Students & Longitudinal Records
-    print("[4/9] Generating ~630 Students with 10-Week Academic Longitudinal Signatures...")
-    school_days = generate_school_days(num_weeks=10)
-    total_days = len(school_days)  # 50 days
+    print("[4/12] Generating ~630 Students with 6-Month Academic Longitudinal Records...")
+    school_days = generate_school_days(num_weeks=26, end_date=date(2026, 9, 30))
+    total_days = len(school_days)  # ~130 days
 
     all_students: List[Student] = []
     student_profiles_map: Dict[str, str] = {}
@@ -522,8 +542,8 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
                 )
                 counts["attendance_records"] += 1
 
-            # Generate 10 weekly homework records for this student
-            for w_idx in range(10):
+            # Generate 26 weekly homework records for this student
+            for w_idx in range(26):
                 hw_date = school_days[min(len(school_days) - 1, w_idx * 5 + 2)]  # Wednesday of each week
                 hw_id_str = f"HW-W{w_idx+1:02d}"
                 _, hw_status, _ = get_student_trajectory(profile, w_idx * 5, total_days)
@@ -548,12 +568,14 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
     writer.commit()
 
     # 5. Exams & Marks
-    print("[5/9] Seeding Exams, Marks Entry & Longitudinal Test Scores...")
+    print("[5/12] Seeding Exams, Marks Entry & Longitudinal Test Scores across 6 Months...")
     exam_templates = [
-        ("Unit Test 1", "Mathematics", school_days[9], 50.0),    # End of Week 2
-        ("Unit Test 2", "Science", school_days[24], 50.0),        # End of Week 5
-        ("Mid-Term Exam", "Mathematics", school_days[39], 100.0), # End of Week 8
-        ("Unit Test 3", "English", school_days[48], 50.0),        # End of Week 10
+        ("Unit Test 1", "Mathematics", school_days[min(len(school_days) - 1, 15)], 50.0),    # ~Late April
+        ("Periodic Test 1", "Science", school_days[min(len(school_days) - 1, 38)], 50.0),     # ~Late May
+        ("Mid-Term Exam", "Mathematics", school_days[min(len(school_days) - 1, 62)], 100.0), # ~Late June
+        ("Periodic Test 2", "Social Studies", school_days[min(len(school_days) - 1, 85)], 50.0), # ~Late July
+        ("Unit Test 2", "Science", school_days[min(len(school_days) - 1, 108)], 50.0),       # ~Late August
+        ("Term Exam", "English", school_days[min(len(school_days) - 1, 126)], 100.0),        # ~Late September
     ]
 
     for cls in classes_list:
@@ -577,7 +599,7 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
 
             for stu in cls_students:
                 prof = student_profiles_map.get(stu.id, "STABLE_HIGH")
-                day_offset = [9, 24, 39, 48][e_idx]
+                day_offset = [15, 38, 62, 85, 108, 126][e_idx]
                 _, _, score_pct = get_student_trajectory(prof, day_offset, total_days)
                 obtained = round((score_pct / 100.0) * max_m, 1)
                 obtained = min(max_m, max(0.0, obtained))
@@ -621,7 +643,7 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
     writer.commit()
 
     # 6. Interventions
-    print("[6/9] Seeding Remedial and Preventative Interventions...")
+    print("[6/10] Seeding Remedial and Preventative Interventions...")
     sample_interventions = [
         (
             "demo-student-001", "class-10a", InterventionType.PARENT_CONTACT,
@@ -666,7 +688,7 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
         counts["interventions"] += 1
 
     # 7. Announcements
-    print("[7/9] Seeding Targeted School Announcements...")
+    print("[7/10] Seeding Targeted School Announcements...")
     announcements_data = [
         (
             "Annual Sports Day Registration Open",
@@ -712,7 +734,7 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
         counts["announcements"] += 1
 
     # 8. Meeting Requests
-    print("[8/9] Seeding Appointment and Meeting Requests...")
+    print("[8/10] Seeding Appointment and Meeting Requests...")
     meetings_data = [
         (
             MeetingType.STUDENT_TEACHER,
@@ -759,11 +781,421 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
         writer.set(db.collection("meeting_requests").document(m_id), meeting.to_firestore())
         counts["meeting_requests"] += 1
 
+    # 9. Seeding Conflict-Free Weekly Timetables (Monday–Saturday, 6 Periods/Day)
+    print("\n[9/10] Seeding Realistic Conflict-Free Weekly Timetables across all 14 Classes...")
+    periods_def = [
+        (1, "09:00", "09:50"),
+        (2, "10:00", "10:50"),
+        (3, "11:10", "12:00"),
+        (4, "12:00", "12:50"),
+        (5, "13:30", "14:20"),
+        (6, "14:20", "15:10"),
+    ]
+    days_def = ["MON", "TUE", "WED", "THU", "FRI", "SAT"]
+
+    junior_subjects = ["Mathematics", "Science", "English", "Social Studies", "Hindi", "Computer Science"]
+    senior_subjects = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "Computer Science"]
+
+    # Group teachers by qualified subject
+    teachers_by_subject: Dict[str, List[Tuple[str, str]]] = defaultdict(list)
+    for i, (fn, ln, subj) in enumerate(TEACHER_NAMES):
+        t_id = "teacher-uid-001" if i == 0 else f"teacher-uid-{i+1:03d}"
+        teachers_by_subject[subj].append((t_id, f"{fn} {ln}"))
+
+    # Global tracking: (day, period) -> set of busy teacher IDs (school-wide)
+    school_teacher_busy: Dict[Tuple[str, int], Set[str]] = defaultdict(set)
+    # Track assigned classes per teacher
+    teacher_assigned_classes: Dict[str, Set[str]] = defaultdict(set)
+
+    # Anchor teachers for key demo classes (Class 10-A, 9-A)
+    anchor_teachers_10a = {
+        "Mathematics": ("teacher-uid-001", "Sarah Jenkins"),
+        "Physics": ("teacher-uid-002", "Rajesh Sharma"),
+        "Chemistry": ("teacher-uid-003", "Meenakshi Sundaram"),
+        "Biology": ("teacher-uid-004", "Amit Verma"),
+        "English": ("teacher-uid-005", "Pooja Bose"),
+        "Computer Science": ("teacher-uid-008", "Vikram Sen"),
+    }
+
+    all_timetable_slots: List[TimetableSlot] = []
+
+    for k, cls in enumerate(classes_list):
+        grade_num = int(cls.grade)
+        subjects = junior_subjects if grade_num <= 8 else senior_subjects
+
+        for d_idx, day_str in enumerate(days_def):
+            for p_idx, (p_num, start_time, end_time) in enumerate(periods_def):
+                # Stagger subject schedule across classes and days to prevent collisions
+                subj_idx = (p_idx + k + d_idx) % 6
+                subject = subjects[subj_idx]
+
+                # Pick teacher
+                chosen_t_id = None
+                chosen_t_name = None
+
+                # For Class 10-A, use anchor teachers whenever available
+                if cls.id == "class-10a" and subject in anchor_teachers_10a:
+                    t_cand_id, t_cand_name = anchor_teachers_10a[subject]
+                    if t_cand_id not in school_teacher_busy[(day_str, p_num)]:
+                        chosen_t_id, chosen_t_name = t_cand_id, t_cand_name
+
+                # Otherwise, find a free teacher qualified in this subject
+                if not chosen_t_id:
+                    cand_list = teachers_by_subject.get(subject, [])
+                    for t_cand_id, t_cand_name in cand_list:
+                        if t_cand_id not in school_teacher_busy[(day_str, p_num)]:
+                            chosen_t_id, chosen_t_name = t_cand_id, t_cand_name
+                            break
+
+                # Fail-safe: if all teachers in subject are busy, pick ANY free teacher in school
+                if not chosen_t_id:
+                    for i, (fn, ln, s_alt) in enumerate(TEACHER_NAMES):
+                        alt_id = "teacher-uid-001" if i == 0 else f"teacher-uid-{i+1:03d}"
+                        if alt_id not in school_teacher_busy[(day_str, p_num)]:
+                            chosen_t_id, chosen_t_name = alt_id, f"{fn} {ln}"
+                            break
+
+                if not chosen_t_id:
+                    chosen_t_id = "teacher-uid-001"
+                    chosen_t_name = "Sarah Jenkins"
+
+                # Record in busy tracking
+                school_teacher_busy[(day_str, p_num)].add(chosen_t_id)
+                teacher_assigned_classes[chosen_t_id].add(cls.name)
+
+                slot_id = f"slot-{school_id}-{cls.id}-{day_str.lower()}-p{p_num}"
+                slot_obj = TimetableSlot(
+                    id=slot_id,
+                    school_id=school_id,
+                    class_id=cls.id,
+                    day_of_week=DayOfWeek(day_str),
+                    period_number=p_num,
+                    subject=subject,
+                    teacher_id=chosen_t_id,
+                    teacher_name=chosen_t_name,
+                    start_time=start_time,
+                    end_time=end_time,
+                )
+                writer.set(db.collection("timetables").document(slot_id), slot_obj.to_firestore())
+                counts["timetable_slots"] += 1
+                all_timetable_slots.append(slot_obj)
+
+    # Update teacher documents in Firestore with their populated assigned_classes
+    for t_id, t_user_obj in teacher_users.items():
+        classes_set = teacher_assigned_classes.get(t_id, set())
+        t_user_obj.assigned_classes = sorted(list(classes_set))
+        writer.set(db.collection("users").document(t_id), t_user_obj.to_firestore())
+
+    # Strict Scheduling Validation Check
+    teacher_slots_check = defaultdict(list)
+    class_slots_check = defaultdict(list)
+    t_conflicts = 0
+    c_conflicts = 0
+
+    for slot in all_timetable_slots:
+        assert slot.start_time < slot.end_time, f"Invalid time range in slot {slot.id}: {slot.start_time} >= {slot.end_time}"
+        assert 1 <= slot.period_number <= 6, f"Invalid period number: {slot.period_number}"
+        
+        t_key = (slot.teacher_id, slot.day_of_week.value, slot.period_number)
+        if t_key in teacher_slots_check:
+            t_conflicts += 1
+        teacher_slots_check[t_key].append(slot)
+
+        c_key = (slot.class_id, slot.day_of_week.value, slot.period_number)
+        if c_key in class_slots_check:
+            c_conflicts += 1
+        class_slots_check[c_key].append(slot)
+
+    counts["teacher_conflicts"] = t_conflicts
+    counts["class_conflicts"] = c_conflicts
+    assert t_conflicts == 0, f"Critical: {t_conflicts} teacher conflicts found!"
+    assert c_conflicts == 0, f"Critical: {c_conflicts} class conflicts found!"
+
     # Flush all remaining writes
     writer.flush()
 
-    # 9. Execute AI Risk Engine over all 14 classes
-    print("[9/9] Executing AI Risk Engine across all 14 Class Cohorts...")
+    # 10. Seeding Realistic Classwork & Assignments across Classes
+    print("\n[10/11] Seeding Realistic Classwork & Assignments across Classes...")
+    today_dt = date.today()
+
+    assignment_templates = [
+        # Class 10-A
+        {
+            "class_id": "class-10a",
+            "teacher_id": "teacher-uid-001",
+            "teacher_name": "Sarah Jenkins",
+            "title": "Quadratic Equations Problem Set",
+            "subject": "Mathematics",
+            "description": "Complete exercises 4.1 to 4.3 from NCERT textbook. Show step-by-step factorization.",
+            "due_date": (today_dt + timedelta(days=2)).isoformat(),
+            "due_time": "23:59",
+            "max_marks": 20.0,
+            "attachments": [
+                {"title": "algebra_questions.pdf", "url": "https://example.com/algebra_questions.pdf", "file_type": "pdf"}
+            ],
+            "status": AssignmentStatus.PUBLISHED,
+        },
+        {
+            "class_id": "class-10a",
+            "teacher_id": "teacher-uid-002",
+            "teacher_name": "Rajesh Sharma",
+            "title": "Optics & Ray Diagrams Worksheet",
+            "subject": "Physics",
+            "description": "Construct ray diagrams for concave mirror object positions at C, F, and between P & F.",
+            "due_date": (today_dt + timedelta(days=4)).isoformat(),
+            "due_time": "17:00",
+            "max_marks": 25.0,
+            "attachments": [
+                {"title": "optics_guide.pdf", "url": "https://example.com/optics_guide.pdf", "file_type": "pdf"}
+            ],
+            "status": AssignmentStatus.PUBLISHED,
+        },
+        {
+            "class_id": "class-10a",
+            "teacher_id": "teacher-uid-005",
+            "teacher_name": "Pooja Bose",
+            "title": "Critical Essay: The Merchant of Venice",
+            "subject": "English",
+            "description": "Write a 500-word analytical essay discussing the trial scene and characterization of Portia.",
+            "due_date": (today_dt + timedelta(days=7)).isoformat(),
+            "due_time": "23:59",
+            "max_marks": 20.0,
+            "attachments": [],
+            "status": AssignmentStatus.PUBLISHED,
+        },
+        {
+            "class_id": "class-10a",
+            "teacher_id": "teacher-uid-003",
+            "teacher_name": "Anita Desai",
+            "title": "Periodic Table Trends Summary",
+            "subject": "Chemistry",
+            "description": "Create a comparative table showing atomic radius, ionization enthalpy, and electronegativity trends across Period 3.",
+            "due_date": (today_dt - timedelta(days=3)).isoformat(),
+            "due_time": "23:59",
+            "max_marks": 15.0,
+            "attachments": [
+                {"title": "periodic_trends.pdf", "url": "https://example.com/periodic_trends.pdf", "file_type": "pdf"}
+            ],
+            "status": AssignmentStatus.PUBLISHED,
+        },
+        # Class 10-B
+        {
+            "class_id": "class-10b",
+            "teacher_id": "teacher-uid-001",
+            "teacher_name": "Sarah Jenkins",
+            "title": "Trigonometric Identities Practice",
+            "subject": "Mathematics",
+            "description": "Solve identities from worksheet sections A and B.",
+            "due_date": (today_dt + timedelta(days=3)).isoformat(),
+            "due_time": "23:59",
+            "max_marks": 20.0,
+            "attachments": [],
+            "status": AssignmentStatus.PUBLISHED,
+        },
+        # Class 9-A
+        {
+            "class_id": "class-9a",
+            "teacher_id": "teacher-uid-001",
+            "teacher_name": "Sarah Jenkins",
+            "title": "Polynomials Division Algorithm",
+            "subject": "Mathematics",
+            "description": "Verify remainder theorem for given cubic polynomials.",
+            "due_date": (today_dt + timedelta(days=5)).isoformat(),
+            "due_time": "23:59",
+            "max_marks": 20.0,
+            "attachments": [],
+            "status": AssignmentStatus.PUBLISHED,
+        },
+    ]
+
+    for a_idx, tmpl in enumerate(assignment_templates):
+        assign_id = f"assign-{tmpl['class_id']}-{a_idx+1}"
+        assign = Assignment(
+            id=assign_id,
+            school_id=school_id,
+            class_id=tmpl["class_id"],
+            teacher_id=tmpl["teacher_id"],
+            teacher_name=tmpl["teacher_name"],
+            title=tmpl["title"],
+            subject=tmpl["subject"],
+            description=tmpl["description"],
+            due_date=tmpl["due_date"],
+            due_time=tmpl["due_time"],
+            max_marks=tmpl["max_marks"],
+            attachments=tmpl["attachments"],
+            status=tmpl["status"],
+        )
+        writer.set(db.collection("assignments").document(assign_id), assign.to_firestore())
+        counts["assignments"] += 1
+
+        cls_students = [s for s in all_students if s.class_id == tmpl["class_id"]]
+        is_past = tmpl["due_date"] < today_dt.isoformat()
+
+        for stu_idx, stu in enumerate(cls_students):
+            prof = student_profiles_map.get(stu.id, "STABLE_HIGH")
+            sub_id = AssignmentSubmission.make_id(assign_id, stu.id)
+
+            should_submit = True
+            is_late = False
+            if is_past:
+                if prof in ("SUDDEN_DROP", "GRADUAL_DECLINE") and stu_idx % 3 == 0:
+                    should_submit = False
+                elif stu_idx % 7 == 0:
+                    is_late = True
+            else:
+                if stu_idx > 18:
+                    should_submit = False
+                elif stu_idx % 6 == 0:
+                    is_late = False
+
+            if should_submit:
+                if is_past:
+                    _, _, score_pct = get_student_trajectory(prof, 40, total_days)
+                    obtained = round((score_pct / 100.0) * tmpl["max_marks"], 1)
+                    obtained = min(tmpl["max_marks"], max(2.0, obtained))
+                    sub = AssignmentSubmission(
+                        id=sub_id,
+                        assignment_id=assign_id,
+                        school_id=school_id,
+                        class_id=tmpl["class_id"],
+                        student_id=stu.id,
+                        student_name=stu.name,
+                        student_code=stu.student_code,
+                        submitted_at=datetime.now(tz=timezone.utc) - timedelta(days=4),
+                        content="Attached complete working and answers for review.",
+                        attachment_name="submission_file.pdf",
+                        attachment_url="https://example.com/submission.pdf",
+                        status=SubmissionStatus.GRADED,
+                        is_late=is_late,
+                        obtained_marks=obtained,
+                        feedback="Solid understanding demonstrated. Neat presentation." if obtained >= 12 else "Review steps carefully for problem 3.",
+                        graded_by=tmpl["teacher_id"],
+                        graded_at=datetime.now(tz=timezone.utc) - timedelta(days=2),
+                    )
+                else:
+                    sub = AssignmentSubmission(
+                        id=sub_id,
+                        assignment_id=assign_id,
+                        school_id=school_id,
+                        class_id=tmpl["class_id"],
+                        student_id=stu.id,
+                        student_name=stu.name,
+                        student_code=stu.student_code,
+                        submitted_at=datetime.now(tz=timezone.utc) - timedelta(hours=stu_idx + 1),
+                        content="Here are my answers for the assignment.",
+                        attachment_name="answers_scan.pdf",
+                        attachment_url="https://example.com/answers.pdf",
+                        status=SubmissionStatus.SUBMITTED,
+                        is_late=False,
+                    )
+
+                writer.set(
+                    db.collection("assignments").document(assign_id).collection("submissions").document(sub_id),
+                    sub.to_firestore(),
+                )
+                counts["assignment_submissions"] += 1
+
+    # Flush assignments writes
+    writer.flush()
+
+    # 10b. Seed Realistic Academic Doubts (Phase 5C)
+    print("\n[10b/12] Seeding Realistic Academic Doubts...")
+    from app.models.doubt import Doubt, DoubtReply, DoubtStatus, DoubtVisibility
+    import uuid as _uuid_doubt
+
+    _doubt_templates = [
+        {
+            "class_id": "class-10a", "student_idx": 0,
+            "title": "Integration by parts: when to apply it?",
+            "body": "I understand the formula but am unsure when to choose integration by parts over substitution. Example please?",
+            "subject": "Mathematics", "status": DoubtStatus.ANSWERED,
+            "reply_body": "Use LIATE rule: L=Log, I=Inverse trig, A=Algebraic, T=Trig, E=Exponential. Choose u as whichever comes first. Example: for x.cos(x)dx, u=x, dv=cos(x)dx.",
+            "teacher_id": "teacher-uid-001", "teacher_name": "Ms. Sarah Jenkins",
+        },
+        {
+            "class_id": "class-10a", "student_idx": 1,
+            "title": "Why does concave mirror form a real image?",
+            "body": "How does a concave mirror always form a real image when the object is beyond the focus?",
+            "subject": "Physics", "status": DoubtStatus.ANSWERED,
+            "reply_body": "Beyond focus, reflected rays actually converge (meet) on the same side as the object ? making it a real image projectable on a screen.",
+            "teacher_id": "teacher-uid-002", "teacher_name": "Mr. Rajesh Sharma",
+        },
+        {
+            "class_id": "class-10a", "student_idx": 2,
+            "title": "Difference between ionic and covalent bonds?",
+            "body": "I keep confusing ionic and covalent bonds. Is there a simple way to remember?",
+            "subject": "Chemistry", "status": DoubtStatus.OPEN,
+            "reply_body": None, "teacher_id": None, "teacher_name": None,
+        },
+        {
+            "class_id": "class-10a", "student_idx": 3,
+            "title": "Can DNA be repaired by the body?",
+            "body": "Our Bio chapter says cells can repair DNA. What types of damage can be repaired and what leads to cancer?",
+            "subject": "Biology", "status": DoubtStatus.ANSWERED,
+            "reply_body": "Yes! Single-strand breaks use the intact strand as template. Double-strand breaks use Homologous Recombination (accurate) or NHEJ (error-prone). When repair fails, mutations accumulate and may lead to cancer.",
+            "teacher_id": "teacher-uid-003", "teacher_name": "Ms. Priya Nair",
+        },
+        {
+            "class_id": "class-10a", "student_idx": 4,
+            "title": "Portia mercy speech literary devices?",
+            "body": "List main literary devices in Portia mercy speech for the essay assignment.",
+            "subject": "English", "status": DoubtStatus.ANSWERED,
+            "reply_body": "Key devices: Metaphor (mercy=rain), Personification (mercy seasons justice), Anaphora (repeated It), Parallelism (sceptre vs mercy), Alliteration (Mightiest in the mightiest).",
+            "teacher_id": "teacher-uid-005", "teacher_name": "Ms. Pooja Bose",
+        },
+        {
+            "class_id": "class-10a", "student_idx": 5,
+            "title": "How to distinguish HCl from H2SO4 in the lab?",
+            "body": "What reagents or tests differentiate HCl and H2SO4 in practicals?",
+            "subject": "Chemistry", "status": DoubtStatus.OPEN,
+            "reply_body": None, "teacher_id": None, "teacher_name": None,
+        },
+    ]
+
+    _doubt_count = 0
+    for _tmpl in _doubt_templates:
+        _cls_id = _tmpl["class_id"]
+        _cls_stus = [s for s in all_students if s.class_id == _cls_id]
+        if not _cls_stus:
+            continue
+        _stu = _cls_stus[_tmpl["student_idx"] % len(_cls_stus)]
+        _did = str(_uuid_doubt.uuid4())
+        _now = datetime.now(tz=timezone.utc)
+
+        _doubt = Doubt(
+            id=_did, school_id=school_id, class_id=_cls_id, subject=_tmpl["subject"],
+            student_id=_stu.id, student_name=_stu.name,
+            title=_tmpl["title"], body=_tmpl["body"],
+            status=_tmpl["status"], visibility=DoubtVisibility.CLASS,
+            reply_count=1 if _tmpl["reply_body"] else 0,
+            views=random.randint(5, 35),
+            answered_by=_tmpl.get("teacher_id"),
+            answered_by_name=_tmpl.get("teacher_name"),
+            answered_at=_now if _tmpl["status"] == DoubtStatus.ANSWERED else None,
+            created_at=_now - timedelta(days=random.randint(1, 7)),
+            updated_at=_now,
+        )
+        db.collection("doubts").document(_did).set(_doubt.to_firestore())
+        _doubt_count += 1
+
+        if _tmpl["reply_body"] and _tmpl["teacher_id"]:
+            _rid = str(_uuid_doubt.uuid4())
+            _reply = DoubtReply(
+                id=_rid, doubt_id=_did, school_id=school_id, class_id=_cls_id,
+                author_id=_tmpl["teacher_id"], author_name=_tmpl["teacher_name"],
+                author_role="TEACHER", body=_tmpl["reply_body"],
+                is_verified_answer=True,
+                created_at=_now - timedelta(hours=random.randint(1, 20)),
+                updated_at=_now,
+            )
+            db.collection("doubts").document(_did).collection("replies").document(_rid).set(_reply.to_firestore())
+
+    print(f"  Seeded {_doubt_count} academic doubts")
+    counts["doubts"] = _doubt_count
+
+    # 11. Execute AI Risk Engine over all 14 classes
+    print("\n[11/12] Executing AI Risk Engine across all 14 Class Cohorts...")
+
     total_alerts = 0
     for cls in classes_list:
         try:
@@ -773,6 +1205,20 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
             print(f"  [!] Note: Cohort analysis for {cls.id}: {exc}")
 
     counts["risk_alerts"] = total_alerts
+
+    # 12. Pre-generate Monthly Reports for 2026-04 through 2026-09
+    print("\n[12/12] Pre-generating Monthly Reports & Historical Risk Analytics (2026-04 through 2026-09)...")
+    monthly_report_periods = ["2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09"]
+    total_monthly_reports = 0
+    for m in monthly_report_periods:
+        try:
+            MonthlyReportService.generate_school_report(school_id, m, force=True)
+            total_monthly_reports += 1
+            print(f"  Generated complete cohort monthly reports for {m}")
+        except Exception as exc:
+            print(f"  [!] Note: Monthly report generation for {m}: {exc}")
+
+    counts["monthly_report_periods"] = total_monthly_reports
 
     print("\n" + "=" * 80)
     print("                    SEEDING COMPLETED SUCCESSFULLY!")
@@ -785,6 +1231,11 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
     print(f"  Homework Records Logged:   {counts['homework_records']}")
     print(f"  Exams Scheduled:           {counts['exams']}")
     print(f"  Exam Results Recorded:     {counts['exam_results']}")
+    print(f"  Timetable Slots Seeded:    {counts['timetable_slots']} (36 slots x 14 classes)")
+    print(f"  Teacher Conflicts:         {counts['teacher_conflicts']}")
+    print(f"  Class Conflicts:           {counts['class_conflicts']}")
+    print(f"  Assignments Created:       {counts['assignments']}")
+    print(f"  Submissions Logged:        {counts['assignment_submissions']}")
     print(f"  Active Risk Alerts:        {counts['risk_alerts']}")
     print(f"  Interventions Recorded:    {counts['interventions']}")
     print(f"  Announcements Published:   {counts['announcements']}")

@@ -8,6 +8,7 @@ Percentages are always: obtained / max * 100 (never stored as raw %).
 
 from __future__ import annotations
 
+from datetime import date
 from fastapi import APIRouter, Depends, status
 
 from app.api.deps import CurrentUser, get_current_user, require_school_access
@@ -50,11 +51,70 @@ async def create_exam(
         subject=payload.subject,
         exam_date=payload.exam_date,
         max_marks=payload.max_marks,
+        start_time=payload.start_time,
+        end_time=payload.end_time,
+        description=payload.description,
     )
     return success_response(
         data=ExamResponse.from_model(exam).model_dump(),
         status_code=status.HTTP_201_CREATED,
     )
+
+
+# NOTE: /class/{class_id} and /upcoming/my MUST be declared before /{exam_id}
+# to prevent FastAPI from treating "class" or "upcoming" as an exam ID.
+@router.get("/class/{class_id}", summary="List exams for a class")
+async def list_class_exams(
+    class_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    _require_teacher_or_above(current_user)
+    cls = ClassService.get_class(class_id)
+    if not cls:
+        return error_response(code="CLASS_NOT_FOUND", message="Class not found.", status_code=404)
+    require_school_access(cls.school_id, current_user)
+
+    exams = ExamService.list_class_exams(class_id)
+    return success_response(data=[ExamResponse.from_model(e).model_dump() for e in exams])
+
+
+@router.get("/upcoming/my", summary="Upcoming exams for student's class")
+async def get_upcoming_exams_for_student(
+    class_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    """Return exams with exam_date >= today, ordered by nearest date.
+
+    Students pass their class_id as a query param.
+    Backend enforces school access before returning.
+    """
+    cls = ClassService.get_class(class_id)
+    if not cls:
+        return error_response(code="CLASS_NOT_FOUND", message="Class not found.", status_code=404)
+    require_school_access(cls.school_id, current_user)
+
+    today_str = date.today().isoformat()  # YYYY-MM-DD
+    all_exams = ExamService.list_class_exams(class_id)  # already ordered by exam_date
+    upcoming = [e for e in all_exams if e.exam_date >= today_str]
+
+    # Compute days_remaining for each exam
+    result = []
+    for exam in upcoming:
+        exam_date_obj = date.fromisoformat(exam.exam_date)
+        days_remaining = (exam_date_obj - date.today()).days
+        entry = ExamResponse.from_model(exam).model_dump()
+        entry["days_remaining"] = days_remaining
+        if days_remaining == 0:
+            entry["urgency"] = "TODAY"
+        elif days_remaining == 1:
+            entry["urgency"] = "TOMORROW"
+        elif days_remaining <= 7:
+            entry["urgency"] = "THIS_WEEK"
+        else:
+            entry["urgency"] = "UPCOMING"
+        result.append(entry)
+
+    return success_response(data=result)
 
 
 @router.get("/{exam_id}", summary="Get exam details")
@@ -134,17 +194,3 @@ async def get_exam_results(
 
     return success_response(data={"exam": ExamResponse.from_model(exam).model_dump(), "results": data, "stats": stats})
 
-
-@router.get("/class/{class_id}", summary="List exams for a class")
-async def list_class_exams(
-    class_id: str,
-    current_user: CurrentUser = Depends(get_current_user),
-):
-    _require_teacher_or_above(current_user)
-    cls = ClassService.get_class(class_id)
-    if not cls:
-        return error_response(code="CLASS_NOT_FOUND", message="Class not found.", status_code=404)
-    require_school_access(cls.school_id, current_user)
-
-    exams = ExamService.list_class_exams(class_id)
-    return success_response(data=[ExamResponse.from_model(e).model_dump() for e in exams])

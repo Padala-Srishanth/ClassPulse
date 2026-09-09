@@ -22,16 +22,21 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     announcements,
+    assignments,
     classes,
+    doubts,
     exams,
     health,
     ingestion,
     interventions,
+    monthly_reports,
     principal,
     risk,
     schools,
     student_portal,
     students,
+    timetables,
+    uploads,
     users,
 )
 
@@ -51,8 +56,13 @@ v1_router.include_router(interventions.router, prefix="/interventions")
 # Phase 5 routes
 v1_router.include_router(principal.router, prefix="/principal")
 v1_router.include_router(exams.router, prefix="/exams")
+v1_router.include_router(timetables.router, prefix="/timetables")
+v1_router.include_router(assignments.router, prefix="/assignments")
+v1_router.include_router(doubts.router, prefix="/doubts")
 v1_router.include_router(announcements.router, prefix="/announcements")
 v1_router.include_router(student_portal.router, prefix="/student")
+v1_router.include_router(uploads.router, prefix="/uploads")
+v1_router.include_router(monthly_reports.router, prefix="/monthly-reports")
 
 
 # ---------------------------------------------------------------------------

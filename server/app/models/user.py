@@ -32,6 +32,8 @@ class User(BaseModel):
     role: UserRole
     school_id: Optional[str] = None   # None only for ADMIN
     status: UserStatus = UserStatus.ACTIVE
+    subjects: list[str] = Field(default_factory=list)
+    assigned_classes: list[str] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=lambda: datetime.now(tz=timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(tz=timezone.utc))
 
@@ -39,6 +41,10 @@ class User(BaseModel):
     def from_firestore(cls, doc_id: str, data: dict) -> "User":
         data = dict(data)
         data["id"] = doc_id
+        if "subjects" not in data or data["subjects"] is None:
+            data["subjects"] = []
+        if "assigned_classes" not in data or data["assigned_classes"] is None:
+            data["assigned_classes"] = []
         for ts_field in ("created_at", "updated_at"):
             if ts_field in data and hasattr(data[ts_field], "timestamp"):
                 from datetime import datetime as dt
@@ -51,4 +57,6 @@ class User(BaseModel):
         d = self.model_dump(exclude={"id"})
         d["role"] = self.role.value
         d["status"] = self.status.value
+        d["subjects"] = self.subjects
+        d["assigned_classes"] = self.assigned_classes
         return d

@@ -4,7 +4,10 @@ import {
   Bell,
   BookOpen,
   CalendarDays,
+  Clock,
+  FileText,
   GraduationCap,
+  HelpCircle,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -21,7 +24,11 @@ interface StudentLayoutProps {
 
 const NAV_ITEMS = [
   { id: 'student-dashboard', label: 'My Dashboard', icon: LayoutDashboard },
+  { id: 'student-monthly-report', label: 'Monthly Report', icon: Activity },
+  { id: 'student-assignments', label: 'Assignments', icon: FileText },
+  { id: 'student-doubts', label: 'Doubts', icon: HelpCircle },
   { id: 'student-attendance', label: 'Attendance', icon: CalendarDays },
+  { id: 'student-timetable', label: 'My Timetable', icon: Clock },
   { id: 'student-marks', label: 'My Marks', icon: BookOpen },
   { id: 'student-messages', label: 'Messages', icon: MessageCircle },
   { id: 'student-announcements', label: 'Announcements', icon: Bell },

@@ -34,6 +34,8 @@ class UserResponse(BaseModel):
     role: UserRole
     school_id: Optional[str]
     status: UserStatus
+    subjects: list[str] = Field(default_factory=list)
+    assigned_classes: list[str] = Field(default_factory=list)
     created_at: str
     updated_at: str
 
@@ -47,6 +49,8 @@ class UserResponse(BaseModel):
             role=user.role,
             school_id=user.school_id,
             status=user.status,
+            subjects=getattr(user, "subjects", []) or [],
+            assigned_classes=getattr(user, "assigned_classes", []) or [],
             created_at=user.created_at.isoformat(),
             updated_at=user.updated_at.isoformat(),
         )

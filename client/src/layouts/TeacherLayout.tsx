@@ -4,8 +4,11 @@ import {
   AlertCircle,
   BookOpen,
   ChevronDown,
+  Clock,
   Database,
+  FileText,
   GraduationCap,
+  HelpCircle,
   LayoutDashboard,
   LogOut,
   Megaphone,
@@ -23,6 +26,10 @@ interface TeacherLayoutProps {
 
 const NAV_ITEMS = [
   { id: 'teacher-dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'teacher-monthly-reports', label: 'Monthly Reports', icon: Activity },
+  { id: 'teacher-assignments', label: 'Assignments', icon: FileText },
+  { id: 'teacher-doubts', label: 'Student Doubts', icon: HelpCircle },
+  { id: 'teacher-timetable', label: 'My Timetable', icon: Clock },
   { id: 'teacher-announcements', label: 'Announcements', icon: Megaphone },
   { id: 'teacher-students', label: 'My Students', icon: Users },
   { id: 'teacher-exams', label: 'Exams & Marks', icon: BookOpen },

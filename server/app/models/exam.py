@@ -40,6 +40,10 @@ class Exam(BaseModel):
     exam_date: str             # ISO format: YYYY-MM-DD
     max_marks: float           # Maximum possible marks
     status: ExamStatus = ExamStatus.UPCOMING
+    # Scheduling fields (Phase 5A — optional, backwards-compatible)
+    start_time: Optional[str] = None   # "HH:MM" 24-hour format
+    end_time: Optional[str] = None     # "HH:MM" 24-hour format
+    description: Optional[str] = None  # Optional notes/instructions
     created_at: datetime = Field(default_factory=lambda: datetime.now(tz=timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(tz=timezone.utc))
 

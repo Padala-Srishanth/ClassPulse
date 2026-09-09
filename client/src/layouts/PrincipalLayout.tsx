@@ -5,6 +5,9 @@ import {
   BarChart3,
   Bell,
   BookOpen,
+  CalendarDays,
+  Clock,
+  FileText,
   LayoutDashboard,
   LogOut,
   Megaphone,
@@ -23,8 +26,12 @@ interface PrincipalLayoutProps {
 
 const NAV_ITEMS = [
   { id: 'principal-dashboard', label: 'School Overview', icon: LayoutDashboard },
+  { id: 'principal-monthly-analytics', label: 'Monthly Analytics', icon: Activity },
+  { id: 'principal-assignments', label: 'Assignments', icon: FileText },
   { id: 'principal-classes', label: 'Class Management', icon: BookOpen },
   { id: 'principal-teachers', label: 'Teachers', icon: Users },
+  { id: 'principal-timetables', label: 'Timetables', icon: Clock },
+  { id: 'principal-exams', label: 'Exams & Schedule', icon: CalendarDays },
   { id: 'principal-reports', label: 'Reports & Analytics', icon: BarChart3 },
   { id: 'principal-announcements', label: 'Announcements', icon: Megaphone },
 ];

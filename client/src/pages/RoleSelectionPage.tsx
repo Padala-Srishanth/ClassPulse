@@ -69,6 +69,13 @@ export const RoleSelectionPage: React.FC<RoleSelectionPageProps> = ({ onRoleSele
     if (onRoleSelected) onRoleSelected(role);
   };
 
+  const handleTeacherPersonaSelect = (e: React.MouseEvent, teacherId: string) => {
+    e.stopPropagation();
+    setSelectedRole('TEACHER');
+    loginAsDemo('TEACHER', 'school-001', teacherId);
+    if (onRoleSelected) onRoleSelected('TEACHER');
+  };
+
   return (
     <div
       style={{
@@ -217,7 +224,7 @@ export const RoleSelectionPage: React.FC<RoleSelectionPageProps> = ({ onRoleSele
                 {card.description}
               </p>
 
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0' }}>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px 0' }}>
                 {card.features.map((f) => (
                   <li key={f} style={{
                     display: 'flex', alignItems: 'center', gap: '8px',
@@ -231,6 +238,79 @@ export const RoleSelectionPage: React.FC<RoleSelectionPageProps> = ({ onRoleSele
                   </li>
                 ))}
               </ul>
+
+              {card.role === 'TEACHER' && (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '6px', fontWeight: 700, letterSpacing: '0.04em' }}>
+                    QUICK-SELECT SUBJECT TEACHER:
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {[
+                      { id: 'teacher-uid-001', label: '📐 Sarah Jenkins (Mathematics)' },
+                      { id: 'teacher-uid-002', label: '⚛️ Rajesh Sharma (Physics)' },
+                      { id: 'teacher-uid-005', label: '📖 Pooja Bose (English)' },
+                    ].map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={(e) => handleTeacherPersonaSelect(e, t.id)}
+                        style={{
+                          padding: '6px 10px',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(124, 58, 237, 0.4)',
+                          background: 'rgba(79, 70, 229, 0.15)',
+                          color: '#c7d2fe',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          transition: 'all 0.15s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(79, 70, 229, 0.35)';
+                          e.currentTarget.style.color = '#ffffff';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(79, 70, 229, 0.15)';
+                          e.currentTarget.style.color = '#c7d2fe';
+                        }}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {card.role === 'STUDENT' && (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '4px', fontWeight: 700, letterSpacing: '0.04em' }}>
+                    DEMO STUDENT:
+                  </div>
+                  <div style={{
+                    padding: '8px 12px', borderRadius: '8px',
+                    background: 'rgba(8, 145, 178, 0.15)', border: '1px solid rgba(8, 145, 178, 0.4)',
+                    color: '#bae6fd', fontSize: '0.76rem', fontWeight: 600,
+                  }}>
+                    👨🎓 Rahul Sharma — Class 10-A
+                  </div>
+                </div>
+              )}
+
+              {card.role === 'SCHOOL_ADMIN' && (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '4px', fontWeight: 700, letterSpacing: '0.04em' }}>
+                    DEMO PRINCIPAL:
+                  </div>
+                  <div style={{
+                    padding: '8px 12px', borderRadius: '8px',
+                    background: 'rgba(5, 150, 105, 0.15)', border: '1px solid rgba(5, 150, 105, 0.4)',
+                    color: '#a7f3d0', fontSize: '0.76rem', fontWeight: 600,
+                  }}>
+                    👩💼 Dr. Evelyn Reed — Complete School Schedule
+                  </div>
+                </div>
+              )}
 
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',

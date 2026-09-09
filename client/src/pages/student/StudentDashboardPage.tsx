@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Activity, BookOpen, CalendarDays, GraduationCap, RefreshCw, TrendingDown, TrendingUp } from 'lucide-react';
+import { Activity, BookOpen, CalendarDays, Clock, GraduationCap, RefreshCw, TrendingDown, TrendingUp, AlertCircle, FileText, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { AnnouncementsWidget } from '../../components/AnnouncementsWidget';
 import { apiFetch } from '../../api/client';
@@ -12,25 +12,42 @@ export const StudentDashboardPage: React.FC<StudentDashboardPageProps> = ({ onNa
   const { token, currentUser } = useAuth();
   const [attendance, setAttendance] = useState<any>(null);
   const [marks, setMarks] = useState<any>(null);
+  const [timetable, setTimetable] = useState<any>(null);
+  const [upcomingExams, setUpcomingExams] = useState<any[]>([]);
+  const [pendingAssignments, setPendingAssignments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // class_id stored from demo login or localStorage
+  const classId = localStorage.getItem('classpulse_class_id') || '';
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
-        const [attRes, marksRes] = await Promise.all([
+        const requests: Promise<Response>[] = [
           apiFetch('/api/v1/student/attendance', { headers: { Authorization: `Bearer ${token}` } }),
           apiFetch('/api/v1/student/marks', { headers: { Authorization: `Bearer ${token}` } }),
-        ]);
-        const [attJson, marksJson] = await Promise.all([attRes.json(), marksRes.json()]);
-        if (attJson.success) setAttendance(attJson.data);
-        if (marksJson.success) setMarks(marksJson.data);
+          apiFetch('/api/v1/student/timetable', { headers: { Authorization: `Bearer ${token}` } }),
+          apiFetch('/api/v1/student/upcoming-exams', { headers: { Authorization: `Bearer ${token}` } }),
+          apiFetch('/api/v1/student/assignments', { headers: { Authorization: `Bearer ${token}` } }),
+        ];
+        const responses = await Promise.all(requests);
+        const jsons = await Promise.all(responses.map(r => r.json()));
+        if (jsons[0].success) setAttendance(jsons[0].data);
+        if (jsons[1].success) setMarks(jsons[1].data);
+        if (jsons[2]?.success) setTimetable(jsons[2].data);
+        if (jsons[3]?.success) setUpcomingExams(jsons[3].data || []);
+        if (jsons[4]?.success) {
+          const pending = jsons[4].data?.pending || [];
+          const overdue = jsons[4].data?.overdue || [];
+          setPendingAssignments([...overdue, ...pending]);
+        }
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, []);
+  }, [token]);
 
   if (loading) {
     return (
@@ -168,6 +185,190 @@ export const StudentDashboardPage: React.FC<StudentDashboardPageProps> = ({ onNa
           </div>
         )}
       </div>
+
+      {/* Today's Classes / Schedule */}
+      {timetable && (
+        <div style={{ background: 'white', borderRadius: '16px', padding: '24px', border: '1px solid #e2e8f0' }}>
+          <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '16px', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Clock size={18} color="#0891b2" /> {timetable.is_sunday || (!timetable.today_slots || timetable.today_slots.length === 0) ? "Today's Schedule" : "Today's Classes"}
+            <span style={{ marginLeft: '4px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700 }}>
+              {timetable.is_sunday ? 'Sunday' : timetable.today_label}
+            </span>
+          </h3>
+
+          {timetable.today_slots && timetable.today_slots.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {timetable.today_slots.map((slot: any) => (
+                <div key={slot.id} style={{
+                  display: 'flex', alignItems: 'center', gap: '14px',
+                  padding: '12px 16px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0',
+                }}>
+                  <div style={{
+                    width: '36px', height: '36px', borderRadius: '10px',
+                    background: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 800, color: '#0891b2', fontSize: '0.85rem', flexShrink: 0,
+                  }}>
+                    P{slot.period_number}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>{slot.subject}</div>
+                    <div style={{ color: '#64748b', fontSize: '0.75rem' }}>{slot.teacher_name}</div>
+                  </div>
+                  <div style={{ fontWeight: 700, color: '#0891b2', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+                    {slot.start_time} – {slot.end_time}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{
+              background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0',
+              padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '1.25rem' }}>🎉</span>
+                <div>
+                  <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.92rem' }}>
+                    No classes scheduled today
+                  </div>
+                  <div style={{ color: '#64748b', fontSize: '0.78rem' }}>
+                    Enjoy your free day!
+                  </div>
+                </div>
+              </div>
+
+              {timetable.next_day_slots && timetable.next_day_slots.length > 0 && (
+                <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '14px', marginTop: '2px' }}>
+                  <div style={{
+                    fontSize: '0.75rem', fontWeight: 700, color: '#475569',
+                    textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px',
+                  }}>
+                    Next Classes: {timetable.next_day_label || 'Monday'}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {timetable.next_day_slots.slice(0, 4).map((slot: any) => (
+                      <div key={slot.id} style={{
+                        display: 'flex', alignItems: 'center', gap: '14px',
+                        padding: '10px 14px', background: 'white', borderRadius: '10px', border: '1px solid #e2e8f0',
+                      }}>
+                        <div style={{
+                          width: '32px', height: '32px', borderRadius: '8px',
+                          background: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontWeight: 800, color: '#0891b2', fontSize: '0.8rem', flexShrink: 0,
+                        }}>
+                          P{slot.period_number}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.85rem' }}>{slot.subject}</div>
+                          <div style={{ color: '#64748b', fontSize: '0.72rem' }}>{slot.teacher_name}</div>
+                        </div>
+                        <div style={{ fontWeight: 700, color: '#0891b2', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
+                          {slot.start_time} – {slot.end_time}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Upcoming Exams */}
+      {upcomingExams.length > 0 && (
+        <div style={{ background: 'white', borderRadius: '16px', padding: '24px', border: '1px solid #e2e8f0' }}>
+          <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '16px', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertCircle size={18} color="#f59e0b" /> Upcoming Exams
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {upcomingExams.slice(0, 5).map((exam: any) => {
+              const urgencyStyles: Record<string, { bg: string; color: string; label: string }> = {
+                TODAY:     { bg: '#fef2f2', color: '#dc2626', label: 'TODAY' },
+                TOMORROW:  { bg: '#fff7ed', color: '#ea580c', label: 'TOMORROW' },
+                THIS_WEEK: { bg: '#fffbeb', color: '#d97706', label: `${exam.days_remaining}d left` },
+                UPCOMING:  { bg: '#f0fdf4', color: '#16a34a', label: `${exam.days_remaining}d left` },
+              };
+              const urgStyle = urgencyStyles[exam.urgency] || urgencyStyles.UPCOMING;
+              return (
+                <div key={exam.id} style={{
+                  display: 'flex', alignItems: 'center', gap: '14px',
+                  padding: '14px 18px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0',
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.9rem' }}>{exam.exam_name}</div>
+                    <div style={{ color: '#64748b', fontSize: '0.78rem', marginTop: '2px' }}>
+                      {exam.subject} • {exam.exam_date}
+                      {exam.start_time && ` • ${exam.start_time}`}
+                    </div>
+                    {exam.description && (
+                      <div style={{ color: '#94a3b8', fontSize: '0.72rem', marginTop: '2px' }}>{exam.description}</div>
+                    )}
+                  </div>
+                  <div style={{
+                    background: urgStyle.bg, color: urgStyle.color,
+                    padding: '4px 12px', borderRadius: '20px',
+                    fontSize: '0.72rem', fontWeight: 800, whiteSpace: 'nowrap',
+                  }}>
+                    {urgStyle.label}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Pending Assignments */}
+      {pendingAssignments.length > 0 && (
+        <div style={{ background: 'white', borderRadius: '16px', padding: '24px', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <h3 style={{ fontWeight: 700, color: '#0f172a', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              <FileText size={18} color="#0891b2" /> Pending Assignments & Classwork
+            </h3>
+            {onNavigate && (
+              <button
+                onClick={() => onNavigate('student-assignments')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '4px',
+                  background: 'none', border: 'none', color: '#0891b2',
+                  fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
+                }}
+              >
+                View all <ChevronRight size={14} />
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {pendingAssignments.slice(0, 4).map((item: any) => {
+              const a = item.assignment;
+              const isOverdue = item.urgency === 'OVERDUE';
+              return (
+                <div key={a.id} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px',
+                  padding: '12px 16px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0',
+                }}>
+                  <div>
+                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.9rem' }}>{a.title}</div>
+                    <div style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '2px' }}>
+                      {a.subject} • Due: {a.due_date} at {a.due_time} ({a.max_marks} pts)
+                    </div>
+                  </div>
+
+                  <span style={{
+                    background: isOverdue ? '#fee2e2' : item.urgency === 'DUE_TODAY' ? '#fee2e2' : '#e0f2fe',
+                    color: isOverdue ? '#b91c1c' : item.urgency === 'DUE_TODAY' ? '#dc2626' : '#0369a1',
+                    fontSize: '0.72rem', fontWeight: 800, padding: '3px 10px', borderRadius: '999px', whiteSpace: 'nowrap',
+                  }}>
+                    {isOverdue ? 'Overdue' : item.urgency === 'DUE_TODAY' ? 'Due Today' : `${item.days_remaining}d left`}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -12,22 +12,34 @@ import { DataImportPage } from './pages/DataImportPage';
 import { ExamsPage } from './pages/teacher/ExamsPage';
 import { TeacherMessagesPage } from './pages/teacher/TeacherMessagesPage';
 import { TeacherAnnouncementsPage } from './pages/teacher/TeacherAnnouncementsPage';
+import { TeacherTimetablePage } from './pages/teacher/TeacherTimetablePage';
+import { TeacherAssignmentsPage } from './pages/teacher/TeacherAssignmentsPage';
+import { TeacherDoubtsPage } from './pages/teacher/TeacherDoubtsPage';
+import { TeacherMonthlyReportsPage } from './pages/teacher/TeacherMonthlyReportsPage';
 
 // Principal layout & pages
 import { PrincipalLayout } from './layouts/PrincipalLayout';
 import { PrincipalDashboardPage } from './pages/principal/PrincipalDashboardPage';
+import { PrincipalMonthlyAnalyticsPage } from './pages/principal/PrincipalMonthlyAnalyticsPage';
 import { ClassManagementPage } from './pages/principal/ClassManagementPage';
 import { TeacherManagementPage } from './pages/principal/TeacherManagementPage';
 import { PrincipalReportsPage } from './pages/principal/PrincipalReportsPage';
 import { AnnouncementsPage as PrincipalAnnouncementsPage } from './pages/principal/AnnouncementsPage';
+import { TimetableManagementPage } from './pages/principal/TimetableManagementPage';
+import { ExamManagementPage } from './pages/principal/ExamManagementPage';
+import { PrincipalAssignmentsPage } from './pages/principal/PrincipalAssignmentsPage';
 
 // Student layout & pages
 import { StudentLayout } from './layouts/StudentLayout';
 import { StudentDashboardPage } from './pages/student/StudentDashboardPage';
+import { StudentMonthlyReportPage } from './pages/student/StudentMonthlyReportPage';
 import { StudentAttendancePage } from './pages/student/StudentAttendancePage';
 import { StudentMarksPage } from './pages/student/StudentMarksPage';
 import { StudentMessagesPage } from './pages/student/StudentMessagesPage';
 import { StudentAnnouncementsPage } from './pages/student/StudentAnnouncementsPage';
+import { StudentTimetablePage } from './pages/student/StudentTimetablePage';
+import { StudentAssignmentsPage } from './pages/student/StudentAssignmentsPage';
+import { StudentDoubtsPage } from './pages/student/StudentDoubtsPage';
 
 // Modals
 import { InterventionModal } from './components/InterventionModal';
@@ -111,8 +123,12 @@ const MainApp: React.FC = () => {
   if (currentUser.role === 'STUDENT') {
     return (
       <StudentLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+        {currentPage === 'student-monthly-report' && <StudentMonthlyReportPage />}
+        {currentPage === 'student-assignments' && <StudentAssignmentsPage />}
+        {currentPage === 'student-doubts' && <StudentDoubtsPage />}
         {currentPage === 'student-attendance' && <StudentAttendancePage />}
         {currentPage === 'student-marks' && <StudentMarksPage />}
+        {currentPage === 'student-timetable' && <StudentTimetablePage />}
         {currentPage === 'student-messages' && <StudentMessagesPage />}
         {currentPage === 'student-announcements' && <StudentAnnouncementsPage />}
         {(currentPage === 'student-dashboard' || !currentPage) && (
@@ -126,8 +142,13 @@ const MainApp: React.FC = () => {
   if (currentUser.role === 'SCHOOL_ADMIN' || currentUser.role === 'ADMIN') {
     return (
       <PrincipalLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+        {currentPage === 'principal-dashboard' && <PrincipalDashboardPage />}
+        {currentPage === 'principal-monthly-analytics' && <PrincipalMonthlyAnalyticsPage />}
+        {currentPage === 'principal-assignments' && <PrincipalAssignmentsPage />}
         {currentPage === 'principal-classes' && <ClassManagementPage />}
         {currentPage === 'principal-teachers' && <TeacherManagementPage />}
+        {currentPage === 'principal-timetables' && <TimetableManagementPage />}
+        {currentPage === 'principal-exams' && <ExamManagementPage />}
         {currentPage === 'principal-reports' && <PrincipalReportsPage />}
         {currentPage === 'principal-announcements' && <PrincipalAnnouncementsPage />}
         {(currentPage === 'principal-dashboard' || !currentPage) && <PrincipalDashboardPage />}
@@ -150,6 +171,14 @@ const MainApp: React.FC = () => {
     }
 
     switch (currentPage) {
+      case 'teacher-monthly-reports':
+        return <TeacherMonthlyReportsPage key={`monthly-reports-${refreshKey}`} />;
+      case 'teacher-assignments':
+        return <TeacherAssignmentsPage key={`assignments-${refreshKey}`} />;
+      case 'teacher-doubts':
+        return <TeacherDoubtsPage key={`doubts-${refreshKey}`} />;
+      case 'teacher-timetable':
+        return <TeacherTimetablePage key={`timetable-${refreshKey}`} />;
       case 'teacher-announcements':
         return <TeacherAnnouncementsPage key={`announcements-${refreshKey}`} />;
       case 'teacher-students':

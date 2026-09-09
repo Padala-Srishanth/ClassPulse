@@ -58,6 +58,9 @@ class MockDocumentReference:
         else:
             self._store[self.id] = dict(data)
 
+    def delete(self):
+        self._store.pop(self.id, None)
+
     def collection(self, name: str) -> "MockCollectionReference":
         key = f"{self.id}/{name}"
         if key not in self._subcollections:

@@ -1,0 +1,34 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Srinivas Padala\OneDrive\Desktop\New\server
+configfile: pytest.ini
+plugins: anyio-4.14.2, asyncio-1.4.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 9 items
+
+tests/v1/test_doubts.py::test_student_can_post_doubt PASSED              [ 11%]
+tests/v1/test_doubts.py::test_teacher_cannot_post_doubt_on_student_endpoint PASSED [ 22%]
+tests/v1/test_doubts.py::test_teacher_can_list_class_doubts PASSED       [ 33%]
+tests/v1/test_doubts.py::test_teacher_can_reply_to_doubt PASSED          [ 44%]
+tests/v1/test_doubts.py::test_teacher_can_mark_answer PASSED             [ 55%]
+tests/v1/test_doubts.py::test_teacher_can_close_doubt PASSED             [ 66%]
+tests/v1/test_doubts.py::test_student_cannot_mark_answer PASSED          [ 77%]
+tests/v1/test_doubts.py::test_principal_school_doubt_stats PASSED        [ 88%]
+tests/v1/test_doubts.py::test_teacher_can_delete_doubt PASSED            [100%]
+
+============================== warnings summary ===============================
+tests/v1/test_doubts.py::test_student_can_post_doubt
+  C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\_pytest\python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/v1/test_doubts.py::test_student_can_post_doubt returned <class 'str'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/v1/test_doubts.py::test_teacher_can_reply_to_doubt
+  C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\_pytest\python.py:171: PytestReturnNotNoneWarning: Test functions should return None, but tests/v1/test_doubts.py::test_teacher_can_reply_to_doubt returned <class 'tuple'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 9 passed, 2 warnings in 1.48s ========================

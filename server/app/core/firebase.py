@@ -128,41 +128,54 @@ def get_storage_bucket() -> Any:
 async def verify_firebase_token(id_token: str) -> Dict[str, Any]:
     """
     Verify a Firebase ID Token or developer demo token.
+    SECURITY: Mock tokens are strictly disabled in production.
     """
-    # Fast path for developer demo mode tokens
-    if id_token == "mock-teacher-token":
-        return {
-            "uid": "teacher-uid-001",
-            "email": "teacher@school-001.example.com",
-            "email_verified": True,
-            "role": "TEACHER",
-            "school_id": "school-001",
-        }
-    if id_token == "mock-school-admin-token":
-        return {
-            "uid": "sadmin-uid-001",
-            "email": "principal@school-001.example.com",
-            "email_verified": True,
-            "role": "SCHOOL_ADMIN",
-            "school_id": "school-001",
-        }
-    if id_token == "mock-student-token":
-        return {
-            "uid": "student-uid-001",
-            "email": "student001@school-001.example.com",
-            "email_verified": True,
-            "role": "STUDENT",
-            "school_id": "school-001",
-            "student_id": "demo-student-001",
-        }
-    if id_token == "mock-admin-token":
-        return {
-            "uid": "admin-uid-001",
-            "email": "admin@classpulse.example.com",
-            "email_verified": True,
-            "role": "ADMIN",
-            "school_id": None,
-        }
+    settings = get_settings()
+
+    # Fast path for developer demo mode tokens — allowed ONLY when allow_demo_auth is True
+    if id_token.startswith("mock-"):
+        if not settings.allow_demo_auth:
+            logger.warning(
+                "Mock authentication token rejected: demo auth is disabled in %s",
+                settings.APP_ENV,
+            )
+            raise ValueError("Mock authentication tokens are strictly disabled in this environment.")
+
+        if id_token.startswith("mock-teacher-token"):
+            parts = id_token.split(":")
+            t_uid = parts[1] if len(parts) > 1 else "teacher-uid-001"
+            return {
+                "uid": t_uid,
+                "email": f"{t_uid}@school-001.example.com",
+                "email_verified": True,
+                "role": "TEACHER",
+                "school_id": "school-001",
+            }
+        if id_token == "mock-school-admin-token":
+            return {
+                "uid": "sadmin-uid-001",
+                "email": "principal@school-001.example.com",
+                "email_verified": True,
+                "role": "SCHOOL_ADMIN",
+                "school_id": "school-001",
+            }
+        if id_token == "mock-student-token":
+            return {
+                "uid": "student-uid-001",
+                "email": "student001@school-001.example.com",
+                "email_verified": True,
+                "role": "STUDENT",
+                "school_id": "school-001",
+                "student_id": "demo-student-001",
+            }
+        if id_token == "mock-admin-token":
+            return {
+                "uid": "admin-uid-001",
+                "email": "admin@classpulse.example.com",
+                "email_verified": True,
+                "role": "ADMIN",
+                "school_id": None,
+            }
 
     if _firebase_app is None:
         raise RuntimeError("Firebase has not been initialised.")
@@ -175,8 +188,8 @@ async def verify_firebase_token(id_token: str) -> Dict[str, Any]:
         )
         return decoded_token
     except Exception:
-        # If token decoding fails, fallback to teacher token in local development
-        if get_settings().is_development:
+        # Fallback to teacher token ONLY in local development / demo mode
+        if settings.allow_demo_auth:
             return {
                 "uid": "teacher-uid-001",
                 "email": "teacher@school-001.example.com",

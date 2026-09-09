@@ -71,6 +71,8 @@ class Settings(BaseSettings):
     # -------------------------------------------------------------------------
     HIDE_ERROR_DETAILS: bool = False
 
+    ENABLE_DEMO_AUTH: bool = True
+
     # -------------------------------------------------------------------------
     # Computed properties
     # -------------------------------------------------------------------------
@@ -84,6 +86,18 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         """True when running in production. Used to gate sensitive behaviour."""
         return self.APP_ENV.lower() == "production"
+
+    @property
+    def allow_demo_auth(self) -> bool:
+        """
+        True only if mock/demo authentication tokens are permitted.
+        SECURITY: Strictly false in production environments.
+        """
+        if self.is_production:
+            return False
+        return self.ENABLE_DEMO_AUTH and (
+            self.is_development or self.APP_ENV.lower() in {"test", "testing", "local"}
+        )
 
     @property
     def cors_origins_list(self) -> List[str]:

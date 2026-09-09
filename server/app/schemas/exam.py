@@ -19,6 +19,10 @@ class ExamCreate(BaseModel):
     subject: str = Field(..., min_length=1, max_length=100)
     exam_date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$")
     max_marks: float = Field(..., gt=0.0)
+    # Scheduling fields (Phase 5A — optional)
+    start_time: Optional[str] = Field(None, description="HH:MM 24-hour format")
+    end_time: Optional[str] = Field(None, description="HH:MM 24-hour format")
+    description: Optional[str] = Field(None, max_length=1000)
 
 
 class ExamResponse(BaseModel):
@@ -34,6 +38,10 @@ class ExamResponse(BaseModel):
     max_marks: float
     status: str
     created_at: str
+    # Scheduling fields (Phase 5A — optional)
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    description: Optional[str] = None
 
     @classmethod
     def from_model(cls, exam) -> "ExamResponse":
@@ -48,6 +56,9 @@ class ExamResponse(BaseModel):
             max_marks=exam.max_marks,
             status=exam.status.value,
             created_at=exam.created_at.isoformat(),
+            start_time=getattr(exam, 'start_time', None),
+            end_time=getattr(exam, 'end_time', None),
+            description=getattr(exam, 'description', None),
         )
 
 

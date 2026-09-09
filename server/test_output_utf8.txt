@@ -1,0 +1,165 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Srinivas Padala\OneDrive\Desktop\New\server
+configfile: pytest.ini
+plugins: anyio-4.14.2, asyncio-1.4.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 1 item
+
+tests/v1/test_doubts.py::test_student_can_post_doubt [36mDEBUG   [0m [06:34:16.210] [-] asyncio ù Using proactor: IocpProactor
+[32mINFO    [0m [06:34:16.213] [-] app.main ù ClassPulse API starting up. env=development version=test
+[36mDEBUG   [0m [06:34:16.213] [-] app.core.firebase ù Firebase Admin SDK already initialised ù reusing existing app.
+[32mINFO    [0m [06:34:16.213] [-] app.main ù Firebase Admin SDK initialised successfully.
+[32mINFO    [0m [06:34:16.213] [-] app.main ù ClassPulse API is ready. Listening on 0.0.0.0:8000
+[36mDEBUG   [0m [06:34:16.266] [a75bc6bd-c379-4abb-a42b-163ae3932626] app.core.security ù Authenticated request. uid=student-uid-001 role=UserRole.STUDENT
+[31mERROR   [0m [06:34:16.267] [a75bc6bd-c379-4abb-a42b-163ae3932626] app.middleware.request_logging ù POST /api/v1/doubts -> 500  (52.6 ms)
+[31mERROR   [0m [06:34:16.267] [-] app.main ù Unhandled exception. path=/api/v1/doubts method=POST error=TypeError
+[32mINFO    [0m [06:34:16.278] [-] httpx2 ù HTTP Request: POST http://testserver/api/v1/doubts "HTTP/1.1 500 Internal Server Error"
+[32mINFO    [0m [06:34:16.278] [-] app.main ù ClassPulse API shutting down gracefully.
+FAILED
+
+================================== FAILURES ===================================
+_________________________ test_student_can_post_doubt _________________________
+
+app = <fastapi.applications.FastAPI object at 0x000001F838AA1E80>
+mock_student_token = {'uid': 'student-uid-001', 'email': 'student@school-001.example.com', 'email_verified': True, 'role': 'STUDENT', ...}
+
+    def test_student_can_post_doubt(app, mock_student_token):
+        class_id, student_id = _setup_class_and_student()
+        mock_student_token["student_id"] = student_id
+        mock_student_token["school_id"] = "school-001"
+    
+        with patch("app.core.security.verify_firebase_token", new=AsyncMock(return_value=mock_student_token)):
+            with TestClient(app, headers={"Authorization": "Bearer mock"}, raise_server_exceptions=False) as client:
+                res = client.post("/api/v1/doubts", json={
+                    "class_id": class_id,
+                    "title": "What is integration by parts?",
+                    "body": "I cannot understand when to apply integration by parts. Can someone explain?",
+                    "subject": "Mathematics",
+                    "visibility": "CLASS",
+                })
+>               assert res.status_code == 201, res.text
+E               AssertionError: {"success":false,"error":{"code":"INTERNAL_SERVER_ERROR","message":"An unexpected error occurred. Please try again or contact support if the problem persists.","details":{"type":"TypeError","traceback":"Traceback (most recent call last):\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\middleware\\errors.py\", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 193, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\app\\middleware\\request_logging.py\", line 73, in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 168, in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\middleware\\cors.py\", line 88, in __call__\n    await self.app(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\middleware\\exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\routing.py\", line 670, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 2734, in app\n    await route.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1780, in handle\n    await self.original_router.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 2789, in handle\n    await included_router._handle_selected(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1791, in _handle_selected\n    await route.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1780, in handle\n    await self.original_router.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 2789, in handle\n    await included_router._handle_selected(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1791, in _handle_selected\n    await route.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1780, in handle\n    await self.original_router.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 2789, in handle\n    await included_router._handle_selected(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1800, in _handle_selected\n    await original_route.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1279, in handle\n    await app(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 158, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 144, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 706, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 352, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\app\\api\\v1\\doubts.py\", line 101, in create_doubt\n    return success_response(data=DoubtResponse.from_model(doubt).model_dump(), status_code=status.HTTP_201_CREATED)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\app\\utils\\responses.py\", line 76, in success_response\n    return JSONResponse(\n        status_code=status_code,\n    ...<4 lines>...\n        },\n    )\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\responses.py\", line 192, in __init__\n    super().__init__(content, status_code, headers, media_type, background)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\responses.py\", line 45, in __init__\n    self.body = self.render(content)\n                ~~~~~~~~~~~^^^^^^^^^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\responses.py\", line 195, in render\n    return json.dumps(\n           ~~~~~~~~~~^\n        content,\n        ^^^^^^^^\n    ...<3 lines>...\n        separators=(\",\", \":\"),\n        ^^^^^^^^^^^^^^^^^^^^^^\n    ).encode(\"utf-8\")\n    ^\n  File \"C:\\Program Files\\Python314\\Lib\\json\\__init__.py\", line 238, in dumps\n    **kw).encode(obj)\n          ~~~~~~^^^^^\n  File \"C:\\Program Files\\Python314\\Lib\\json\\encoder.py\", line 200, in encode\n    chunks = self.iterencode(o, _one_shot=True)\n  File \"C:\\Program Files\\Python314\\Lib\\json\\encoder.py\", line 261, in iterencode\n    return _iterencode(o, 0)\n  File \"C:\\Program Files\\Python314\\Lib\\json\\encoder.py\", line 180, in default\n    raise TypeError(f'Object of type {o.__class__.__name__} '\n                    f'is not JSON serializable')\nTypeError: Object of type datetime is not JSON serializable\nwhen serializing dict item 'created_at'\nwhen serializing dict item 'data'\n"}},"meta":{"request_id":null,"timestamp":null}}
+E               assert 500 == 201
+E                +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\v1\test_doubts.py:53: AssertionError
+------------------------------ Captured log call ------------------------------
+DEBUG    asyncio:proactor_events.py:631 Using proactor: IocpProactor
+INFO     app.main:main.py:74 ClassPulse API starting up. env=development version=test
+DEBUG    app.core.firebase:firebase.py:57 Firebase Admin SDK already initialised ù reusing existing app.
+INFO     app.main:main.py:78 Firebase Admin SDK initialised successfully.
+INFO     app.main:main.py:91 ClassPulse API is ready. Listening on 0.0.0.0:8000
+DEBUG    app.core.security:security.py:185 Authenticated request. uid=student-uid-001 role=UserRole.STUDENT
+ERROR    app.middleware.request_logging:request_logging.py:86 POST /api/v1/doubts -> 500  (52.6 ms)
+ERROR    app.main:main.py:205 Unhandled exception. path=/api/v1/doubts method=POST error=TypeError
+Traceback (most recent call last):
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\app\middleware\request_logging.py", line 73, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\middleware\cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\routing.py", line 670, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 1791, in _handle_selected
+    await route.handle(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 1791, in _handle_selected
+    await route.handle(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\fastapi\routing.py", line 352, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\app\api\v1\doubts.py", line 101, in create_doubt
+    return success_response(data=DoubtResponse.from_model(doubt).model_dump(), status_code=status.HTTP_201_CREATED)
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\app\utils\responses.py", line 76, in success_response
+    return JSONResponse(
+        status_code=status_code,
+    ...<4 lines>...
+        },
+    )
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\responses.py", line 192, in __init__
+    super().__init__(content, status_code, headers, media_type, background)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\responses.py", line 45, in __init__
+    self.body = self.render(content)
+                ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Srinivas Padala\OneDrive\Desktop\New\server\.venv\Lib\site-packages\starlette\responses.py", line 195, in render
+    return json.dumps(
+           ~~~~~~~~~~^
+        content,
+        ^^^^^^^^
+    ...<3 lines>...
+        separators=(",", ":"),
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ).encode("utf-8")
+    ^
+  File "C:\Program Files\Python314\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "C:\Program Files\Python314\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "C:\Program Files\Python314\Lib\json\encoder.py", line 261, in iterencode
+    return _iterencode(o, 0)
+  File "C:\Program Files\Python314\Lib\json\encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type datetime is not JSON serializable
+when serializing dict item 'created_at'
+when serializing dict item 'data'
+INFO     httpx2:_client.py:1085 HTTP Request: POST http://testserver/api/v1/doubts "HTTP/1.1 500 Internal Server Error"
+INFO     app.main:main.py:97 ClassPulse API shutting down gracefully.
+=========================== short test summary info ===========================
+FAILED tests/v1/test_doubts.py::test_student_can_post_doubt - AssertionError: {"success":false,"error":{"code":"INTERNAL_SERVER_ERROR","message":"An unexpected error occurred. Please try again or contact support if the problem persists.","details":{"type":"TypeError","traceback":"Traceback (most recent call last):\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\middleware\\errors.py\", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 193, in __call__\n    response = await self.dispatch_func(request, call_next)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\app\\middleware\\request_logging.py\", line 73, in dispatch\n    response = await call_next(request)\n               ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 168, in call_next\n    raise app_exc from app_exc.__cause__ or app_exc.__context__\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\middleware\\base.py\", line 144, in coro\n    await self.app(scope, receive_or_disconnect, send_no_error)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\middleware\\cors.py\", line 88, in __call__\n    await self.app(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\middleware\\exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\routing.py\", line 670, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 2734, in app\n    await route.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1780, in handle\n    await self.original_router.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 2789, in handle\n    await included_router._handle_selected(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1791, in _handle_selected\n    await route.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1780, in handle\n    await self.original_router.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 2789, in handle\n    await included_router._handle_selected(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1791, in _handle_selected\n    await route.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1780, in handle\n    await self.original_router.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 2789, in handle\n    await included_router._handle_selected(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1800, in _handle_selected\n    await original_route.handle(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 1279, in handle\n    await app(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 158, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 144, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 706, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n    )\n    ^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\fastapi\\routing.py\", line 352, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\app\\api\\v1\\doubts.py\", line 101, in create_doubt\n    return success_response(data=DoubtResponse.from_model(doubt).model_dump(), status_code=status.HTTP_201_CREATED)\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\app\\utils\\responses.py\", line 76, in success_response\n    return JSONResponse(\n        status_code=status_code,\n    ...<4 lines>...\n        },\n    )\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\responses.py\", line 192, in __init__\n    super().__init__(content, status_code, headers, media_type, background)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\responses.py\", line 45, in __init__\n    self.body = self.render(content)\n                ~~~~~~~~~~~^^^^^^^^^\n  File \"C:\\Users\\Srinivas Padala\\OneDrive\\Desktop\\New\\server\\.venv\\Lib\\site-packages\\starlette\\responses.py\", line 195, in render\n    return json.dumps(\n           ~~~~~~~~~~^\n        content,\n        ^^^^^^^^\n    ...<3 lines>...\n        separators=(\",\", \":\"),\n        ^^^^^^^^^^^^^^^^^^^^^^\n    ).encode(\"utf-8\")\n    ^\n  File \"C:\\Program Files\\Python314\\Lib\\json\\__init__.py\", line 238, in dumps\n    **kw).encode(obj)\n          ~~~~~~^^^^^\n  File \"C:\\Program Files\\Python314\\Lib\\json\\encoder.py\", line 200, in encode\n    chunks = self.iterencode(o, _one_shot=True)\n  File \"C:\\Program Files\\Python314\\Lib\\json\\encoder.py\", line 261, in iterencode\n    return _iterencode(o, 0)\n  File \"C:\\Program Files\\Python314\\Lib\\json\\encoder.py\", line 180, in default\n    raise TypeError(f'Object of type {o.__class__.__name__} '\n                    f'is not JSON serializable')\nTypeError: Object of type datetime is not JSON serializable\nwhen serializing dict item 'created_at'\nwhen serializing dict item 'data'\n"}},"meta":{"request_id":null,"timestamp":null}}
+assert 500 == 201
+ +  where 500 = <Response [500 Internal Server Error]>.status_code
+============================== 1 failed in 1.15s ==============================

@@ -11,7 +11,7 @@ interface AuthContextType {
   schoolId: string | null;
   loading: boolean;
   loginWithEmail: (email: string, pass: string) => Promise<void>;
-  loginAsDemo: (role: UserRole, schoolId?: string) => void;
+  loginAsDemo: (role: UserRole, schoolId?: string, teacherId?: string) => void;
   logout: () => Promise<void>;
 }
 
@@ -45,13 +45,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: 'teacher-uid-001',
       firebase_uid: 'teacher-uid-001',
       email: 'teacher@school-001.example.com',
-      name: 'Sarah Jenkins',
+      name: 'Sarah Jenkins (Mathematics)',
       role: 'TEACHER',
       school_id: 'school-001',
       status: 'ACTIVE',
     };
     setCurrentUser(defaultTeacher);
-    setToken('mock-teacher-token');
+    setToken('mock-teacher-token:teacher-uid-001');
     setLoading(false);
   }, []);
 
@@ -76,9 +76,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginAsDemo = (role: UserRole, schoolId: string = 'school-001') => {
+  const loginAsDemo = (role: UserRole, schoolId: string = 'school-001', teacherId?: string) => {
     let demoUser: User;
     let mockToken = 'mock-token';
+
+    const TEACHER_PERSONAS: Record<string, { name: string; email: string }> = {
+      'teacher-uid-001': { name: 'Sarah Jenkins (Mathematics)', email: 'teacher@school-001.example.com' },
+      'teacher-uid-002': { name: 'Rajesh Sharma (Physics)', email: 'teacher2@school-001.example.com' },
+      'teacher-uid-005': { name: 'Pooja Bose (English)', email: 'teacher5@school-001.example.com' },
+    };
 
     if (role === 'ADMIN') {
       demoUser = {
@@ -107,24 +113,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: 'student-uid-001',
         firebase_uid: 'student-uid-001',
         email: 'student001@school-001.example.com',
-        name: 'Alex Kumar (Student)',
+        name: 'Rahul Sharma (Student)',
         role: 'STUDENT',
         school_id: schoolId,
         status: 'ACTIVE',
         student_id: 'demo-student-001',
       };
       mockToken = 'mock-student-token';
+      localStorage.setItem('classpulse_class_id', 'class-10a');
     } else {
+      const tId = teacherId || 'teacher-uid-001';
+      const persona = TEACHER_PERSONAS[tId] || { name: 'Sarah Jenkins (Mathematics)', email: 'teacher@school-001.example.com' };
       demoUser = {
-        id: 'teacher-uid-001',
-        firebase_uid: 'teacher-uid-001',
-        email: 'teacher@school-001.example.com',
-        name: 'Sarah Jenkins (Class 10 Lead)',
+        id: tId,
+        firebase_uid: tId,
+        email: persona.email,
+        name: persona.name,
         role: 'TEACHER',
         school_id: schoolId,
         status: 'ACTIVE',
       };
-      mockToken = 'mock-teacher-token';
+      mockToken = `mock-teacher-token:${tId}`;
     }
 
     setCurrentUser(demoUser);

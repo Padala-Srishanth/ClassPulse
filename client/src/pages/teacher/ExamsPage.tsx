@@ -23,6 +23,8 @@ export const ExamsPage: React.FC = () => {
   const [students, setStudents] = useState<StudentData[]>([]);
   const [selectedExam, setSelectedExam] = useState<Exam | null>(null);
   const [examResults, setExamResults] = useState<ExamResult[]>([]);
+  const [viewingResults, setViewingResults] = useState(false);
+  const [resultsLoading, setResultsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showCreateExam, setShowCreateExam] = useState(false);
   const [showEnterMarks, setShowEnterMarks] = useState(false);
@@ -46,18 +48,27 @@ export const ExamsPage: React.FC = () => {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())
-      .then(j => { if (j.success) setExams(j.data); })
+      .then(j => { if (j.success) setExams(j.data); else setExams([]); })
+      .catch(() => setExams([]))
       .finally(() => setLoading(false));
 
     studentsApi.listClassStudents(selectedClass).then((s: any) => setStudents(s));
   }, [selectedClass]);
 
   const loadExamResults = async (examId: string) => {
-    const res = await apiFetch(`/api/v1/exams/${examId}/results`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const json = await res.json();
-    if (json.success) setExamResults(json.data.results || []);
+    setResultsLoading(true);
+    try {
+      const res = await apiFetch(`/api/v1/exams/${examId}/results`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (json.success) setExamResults(json.data.results || []);
+      else setExamResults([]);
+    } catch {
+      setExamResults([]);
+    } finally {
+      setResultsLoading(false);
+    }
   };
 
   const createExam = async () => {
@@ -99,6 +110,7 @@ export const ExamsPage: React.FC = () => {
         alert(`✅ Saved ${json.data.saved.length} results. ${json.data.errors.length > 0 ? `${json.data.errors.length} errors.` : ''}`);
         setShowEnterMarks(false);
         setMarks({});
+        setViewingResults(true);
         loadExamResults(selectedExam.id);
       }
     } finally { setSaving(false); }
@@ -194,13 +206,19 @@ export const ExamsPage: React.FC = () => {
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
-                      onClick={async () => { setSelectedExam(exam); setShowEnterMarks(false); await loadExamResults(exam.id); }}
+                      onClick={async () => {
+                        setSelectedExam(exam);
+                        setShowEnterMarks(false);
+                        setViewingResults(true);
+                        setExamResults([]);
+                        await loadExamResults(exam.id);
+                      }}
                       style={{ padding: '7px 14px', background: '#eef2ff', color: '#4f46e5', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem' }}
                     >
                       View Results
                     </button>
                     <button
-                      onClick={() => { setSelectedExam(exam); setShowEnterMarks(true); setMarks({}); }}
+                      onClick={() => { setSelectedExam(exam); setShowEnterMarks(true); setViewingResults(false); setMarks({}); }}
                       style={{ padding: '7px 14px', background: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem' }}
                     >
                       Enter Marks
@@ -254,30 +272,44 @@ export const ExamsPage: React.FC = () => {
       )}
 
       {/* Results Panel */}
-      {selectedExam && !showEnterMarks && examResults.length > 0 && (
+      {selectedExam && viewingResults && !showEnterMarks && (
         <div style={{ background: 'white', borderRadius: '16px', padding: '24px', border: '1px solid #e2e8f0' }}>
-          <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '16px' }}>
-            Results — {selectedExam.exam_name}
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {examResults.map(r => {
-              const student = students.find(s => s.id === r.student_id);
-              return (
-                <div key={r.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#f8fafc', borderRadius: '10px' }}>
-                  <span style={{ fontWeight: 600, color: '#0f172a' }}>{student?.name || r.student_id}</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <span style={{ color: '#64748b', fontSize: '0.85rem' }}>{r.obtained_marks}/{r.max_marks}</span>
-                    <span style={{ fontWeight: 700, color: '#0f172a' }}>{r.percentage.toFixed(1)}%</span>
-                    <span style={{
-                      background: r.grade === 'F' ? '#fef2f2' : '#f0fdf4',
-                      color: r.grade === 'F' ? '#dc2626' : '#16a34a',
-                      padding: '3px 10px', borderRadius: '6px', fontWeight: 700, fontSize: '0.82rem',
-                    }}>{r.grade}</span>
-                  </div>
-                </div>
-              );
-            })}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h3 style={{ fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              Results — {selectedExam.exam_name}
+            </h3>
+            <button onClick={() => setViewingResults(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><X size={20} /></button>
           </div>
+          {resultsLoading ? (
+            <div style={{ textAlign: 'center', padding: '32px', color: '#64748b' }}>
+              <RefreshCw size={22} color="#4f46e5" style={{ animation: 'spin 1s linear infinite' }} />
+              <p style={{ marginTop: '8px' }}>Loading results...</p>
+            </div>
+          ) : examResults.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8' }}>
+              No marks entered yet. Click "Enter Marks" to add student scores.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {examResults.map(r => {
+                const student = students.find(s => s.id === r.student_id);
+                return (
+                  <div key={r.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#f8fafc', borderRadius: '10px' }}>
+                    <span style={{ fontWeight: 600, color: '#0f172a' }}>{student?.name || r.student_id}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <span style={{ color: '#64748b', fontSize: '0.85rem' }}>{r.obtained_marks}/{r.max_marks}</span>
+                      <span style={{ fontWeight: 700, color: '#0f172a' }}>{r.percentage.toFixed(1)}%</span>
+                      <span style={{
+                        background: r.grade === 'F' ? '#fef2f2' : '#f0fdf4',
+                        color: r.grade === 'F' ? '#dc2626' : '#16a34a',
+                        padding: '3px 10px', borderRadius: '6px', fontWeight: 700, fontSize: '0.82rem',
+                      }}>{r.grade}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>

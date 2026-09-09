@@ -32,6 +32,9 @@ class ExamService:
         subject: str,
         exam_date: str,
         max_marks: float,
+        start_time: Optional[str] = None,
+        end_time: Optional[str] = None,
+        description: Optional[str] = None,
     ) -> Exam:
         exam_id = str(uuid.uuid4())
         now = datetime.now(tz=timezone.utc)
@@ -45,11 +48,15 @@ class ExamService:
             exam_date=exam_date,
             max_marks=max_marks,
             status=ExamStatus.UPCOMING,
+            start_time=start_time,
+            end_time=end_time,
+            description=description,
             created_at=now,
             updated_at=now,
         )
         cls._exams_col().document(exam_id).set(exam.to_firestore())
         return exam
+
 
     @classmethod
     def get_exam(cls, exam_id: str) -> Optional[Exam]:

@@ -191,10 +191,13 @@ class InterventionRecommendationService:
         Rule 7: Detect if student had a dip in a prior evaluation period but has now recovered.
         """
         # Check monthly history for prior dip followed by recovery
-        if len(monthly_reports) >= 2:
-            prev_risk = monthly_reports[-2].risk.get("risk_score", 0) if monthly_reports[-2].risk else 0
+        if monthly_reports:
+            had_prior_high_risk = any(
+                (r.risk.get("risk_score", 0) if r.risk else 0) >= 60.0
+                for r in monthly_reports
+            )
             curr_risk = score_output.risk_score
-            if prev_risk >= 60.0 and curr_risk <= 35.0:
+            if had_prior_high_risk and curr_risk <= 35.0:
                 return True
 
         # Check weekly signatures: prior 2-3 weeks had dip, recent week improved close to baseline
@@ -283,6 +286,8 @@ class InterventionRecommendationService:
         base_priority = score_output.risk_score
         bonus = (declining_count * 8.0) + (15.0 if is_persistent else 0.0) + (15.0 if is_sudden_drop else 0.0)
         priority_score = round(min(100.0, max(20.0, base_priority + bonus)), 1)
+        if is_sudden_drop:
+            priority_score = max(75.0, priority_score)
         priority_level = cls._determine_priority_level(priority_score)
 
         signals_summary = {

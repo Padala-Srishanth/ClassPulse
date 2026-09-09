@@ -61,7 +61,6 @@ def seed_base_student():
 
 def _seed_academic_history(
     student_id: str,
-    baseline_weeks: int = 4,
     att_base: float = 95.0,
     att_recent: float = 65.0,
     hw_base: float = 90.0,
@@ -71,92 +70,110 @@ def _seed_academic_history(
     weak_subject: str = "Mathematics",
 ):
     """Seed synthetic daily attendance, homework, and test records."""
-    # Seed baseline weeks (weeks 30 to 30 + baseline_weeks - 1)
-    # Clear existing subcollections first
-    mock_db.collection(f"students/{student_id}/attendance")._store.clear()
-    mock_db.collection(f"students/{student_id}/homework")._store.clear()
-    mock_db.collection(f"students/{student_id}/test_scores")._store.clear()
+    stu_doc = mock_db.collection("students").document(student_id)
+    att_coll = stu_doc.collection("attendance")
+    hw_coll = stu_doc.collection("homework")
+    test_coll = stu_doc.collection("test_scores")
 
-    # Dates spanning 6 weeks: 4 baseline weeks + 2 recent weeks
-    dates_baseline = [
-        "2024-08-01", "2024-08-02", "2024-08-05", "2024-08-06",
-        "2024-08-08", "2024-08-09", "2024-08-12", "2024-08-13",
-        "2024-08-15", "2024-08-16", "2024-08-19", "2024-08-20",
+    att_coll._store.clear()
+    hw_coll._store.clear()
+    test_coll._store.clear()
+
+    # 4 baseline weeks (Weeks 30, 31, 32, 33)
+    baseline_days = [
+        "2024-07-22", "2024-07-23", "2024-07-24", "2024-07-25",
+        "2024-07-29", "2024-07-30", "2024-07-31", "2024-08-01",
+        "2024-08-05", "2024-08-06", "2024-08-07", "2024-08-08",
+        "2024-08-12", "2024-08-13", "2024-08-14", "2024-08-15",
     ]
-    dates_recent = [
+    # 2 recent evaluation weeks (Weeks 34, 35)
+    recent_days = [
+        "2024-08-19", "2024-08-20", "2024-08-21", "2024-08-22",
         "2024-08-26", "2024-08-27", "2024-08-28", "2024-08-29",
-        "2024-09-02", "2024-09-03", "2024-09-04", "2024-09-05",
     ]
 
-    for d in dates_baseline:
-        att_status = "PRESENT" if (att_base > 80.0 or hash(d) % 10 < 8) else "ABSENT"
-        mock_db.collection(f"students/{student_id}/attendance").document(f"att_{student_id}_{d}").set({
+    # Attendance
+    for d in baseline_days:
+        status = "PRESENT" if att_base >= 80.0 else "ABSENT"
+        att_coll.document(f"att_{student_id}_{d}").set({
+            "id": f"att_{student_id}_{d}",
             "student_id": student_id,
             "school_id": "school-001",
             "class_id": "class-001",
             "date": d,
-            "status": att_status,
+            "status": status,
             "source": "manual",
             "created_at": datetime.now(tz=timezone.utc),
         })
 
-    for d in dates_recent:
-        att_status = "PRESENT" if (att_recent > 80.0) else "ABSENT"
-        mock_db.collection(f"students/{student_id}/attendance").document(f"att_{student_id}_{d}").set({
+    for d in recent_days:
+        status = "PRESENT" if att_recent >= 80.0 else "ABSENT"
+        att_coll.document(f"att_{student_id}_{d}").set({
+            "id": f"att_{student_id}_{d}",
             "student_id": student_id,
             "school_id": "school-001",
             "class_id": "class-001",
             "date": d,
-            "status": att_status,
+            "status": status,
             "source": "manual",
             "created_at": datetime.now(tz=timezone.utc),
         })
 
-    # Homework records
-    for i, d in enumerate(dates_baseline):
-        mock_db.collection(f"students/{student_id}/homework").document(f"hw_{student_id}_{d}").set({
+    # Homework
+    for i, d in enumerate(baseline_days):
+        status = "COMPLETED" if hw_base >= 80.0 else "NOT_COMPLETED"
+        hw_coll.document(f"hw_{student_id}_{d}").set({
+            "id": f"hw_{student_id}_{d}",
             "student_id": student_id,
             "school_id": "school-001",
             "class_id": "class-001",
+            "assignment_id": f"assign_base_{i}",
             "assignment_date": d,
-            "subject": weak_subject,
-            "status": "SUBMITTED" if hw_base >= 80 else "PENDING",
+            "status": status,
+            "source": "manual",
             "created_at": datetime.now(tz=timezone.utc),
         })
 
-    for i, d in enumerate(dates_recent):
-        mock_db.collection(f"students/{student_id}/homework").document(f"hw_{student_id}_{d}").set({
+    for i, d in enumerate(recent_days):
+        status = "COMPLETED" if hw_recent >= 80.0 else "NOT_COMPLETED"
+        hw_coll.document(f"hw_{student_id}_{d}").set({
+            "id": f"hw_{student_id}_{d}",
             "student_id": student_id,
             "school_id": "school-001",
             "class_id": "class-001",
+            "assignment_id": f"assign_rec_{i}",
             "assignment_date": d,
-            "subject": weak_subject,
-            "status": "SUBMITTED" if hw_recent >= 80 else "PENDING",
+            "status": status,
+            "source": "manual",
             "created_at": datetime.now(tz=timezone.utc),
         })
 
-    # Test records
-    mock_db.collection(f"students/{student_id}/test_scores").document(f"test_{student_id}_base").set({
+    # Test Scores (at least one in baseline week and one in recent week)
+    test_coll.document(f"test_{student_id}_base").set({
+        "id": f"test_{student_id}_base",
         "student_id": student_id,
         "school_id": "school-001",
         "class_id": "class-001",
-        "assessment_date": "2024-08-15",
         "subject": weak_subject,
-        "test_name": "Mid-Term Assessment",
+        "assessment_name": "Mid-Term Assessment",
+        "assessment_date": "2024-08-08",
         "score": test_base,
-        "max_marks": 100.0,
+        "max_score": 100.0,
+        "source": "manual",
         "created_at": datetime.now(tz=timezone.utc),
     })
 
-    mock_db.collection(f"students/{student_id}/test_scores").document(f"test_{student_id}_recent").set({
+    test_coll.document(f"test_{student_id}_recent").set({
+        "id": f"test_{student_id}_recent",
         "student_id": student_id,
         "school_id": "school-001",
         "class_id": "class-001",
-        "assessment_date": "2024-09-02",
         "subject": weak_subject,
-        "test_name": "Weekly Quiz",
+        "assessment_name": "Recent Quiz",
+        "assessment_date": "2024-08-28",
         "score": test_recent,
-        "max_marks": 100.0,
+        "max_score": 100.0,
+        "source": "manual",
         "created_at": datetime.now(tz=timezone.utc),
     })
 

@@ -8,7 +8,7 @@ import pytest
 
 from app.core.security import CurrentUser, UserRole
 from app.interventions.recommendation_config import recommendation_config
-from app.models.academic import AttendanceRecord, HomeworkRecord, TestScore
+from app.models.academic import AttendanceRecord, HomeworkRecord, TestScoreRecord
 from app.models.intervention import Intervention, InterventionStatus, InterventionType
 from app.models.intervention_recommendation import (
     DismissalReason,
@@ -52,6 +52,8 @@ def seed_base_student():
         "name": "Class 10 - A",
         "grade": "10",
         "section": "A",
+        "academic_year": "2024-25",
+        "teacher_ids": ["teacher-uid-001"],
         "status": "ACTIVE",
     })
     return student

@@ -141,10 +141,10 @@ export const PrincipalDashboardPage: React.FC<{ onNavigate?: (page: string) => v
   }
 
   const totalRisk = data.high_risk_students + data.medium_risk_students + data.low_risk_students;
-  const pendingRecs = schoolRecs.filter(r => r.status === 'pending');
-  const urgentRecs = pendingRecs.filter(r => r.priority_level === 'urgent');
-  const highRecs = pendingRecs.filter(r => r.priority_level === 'high');
-  const convertedRecs = schoolRecs.filter(r => r.status === 'converted_to_intervention');
+  const pendingRecs = schoolRecs.filter(r => r.status === 'PENDING');
+  const urgentRecs = pendingRecs.filter(r => r.priority_level === 'URGENT');
+  const highRecs = pendingRecs.filter(r => r.priority_level === 'HIGH');
+  const convertedRecs = schoolRecs.filter(r => r.status === 'CONVERTED_TO_INTERVENTION');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>

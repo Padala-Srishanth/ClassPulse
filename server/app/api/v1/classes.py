@@ -4,7 +4,8 @@ app.api.v1.classes — Class Management Endpoints
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, status
+from typing import Optional
+from fastapi import APIRouter, Depends, Query, status
 
 from app.api.deps import (
     CurrentUser,
@@ -20,6 +21,19 @@ from app.utils.responses import error_response, success_response
 
 
 router = APIRouter(tags=["Classes"])
+
+
+@router.get("", summary="List classes in a school (query param)")
+async def list_classes_query(
+    school_id: Optional[str] = Query(None),
+    pagination: PaginationParams = Depends(get_pagination),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    target_school = school_id or current_user.school_id or "school-001"
+    require_school_access(target_school, current_user)
+    classes = ClassService.list_school_classes(target_school, skip=pagination.skip, limit=pagination.limit)
+    data = [ClassResponse.from_model(c).model_dump() for c in classes]
+    return success_response(data=data)
 
 
 @router.post("", summary="Create a new class (ADMIN or SCHOOL_ADMIN)")

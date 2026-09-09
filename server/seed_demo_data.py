@@ -921,6 +921,48 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
     today_dt = date.today()
 
     assignment_templates = [
+        # Class 6-A
+        {
+            "class_id": "class-6a",
+            "teacher_id": "teacher-uid-001",
+            "teacher_name": "Sarah Jenkins",
+            "title": "Fractions & Decimals Operations",
+            "subject": "Mathematics",
+            "description": "Complete word problems 1 to 15 on converting improper fractions to mixed numbers and decimal addition.",
+            "due_date": (today_dt + timedelta(days=3)).isoformat(),
+            "due_time": "23:59",
+            "max_marks": 20.0,
+            "attachments": [
+                {"title": "fractions_practice.pdf", "url": "https://example.com/fractions_practice.pdf", "file_type": "pdf"}
+            ],
+            "status": AssignmentStatus.PUBLISHED,
+        },
+        {
+            "class_id": "class-6a",
+            "teacher_id": "teacher-uid-002",
+            "teacher_name": "Rajesh Sharma",
+            "title": "Components of Food & Balanced Diet",
+            "subject": "Science",
+            "description": "Record a 3-day meal chart and categorize each item into carbohydrates, proteins, fats, vitamins, and roughage.",
+            "due_date": (today_dt + timedelta(days=5)).isoformat(),
+            "due_time": "18:00",
+            "max_marks": 25.0,
+            "attachments": [],
+            "status": AssignmentStatus.PUBLISHED,
+        },
+        {
+            "class_id": "class-6a",
+            "teacher_id": "teacher-uid-005",
+            "teacher_name": "Pooja Bose",
+            "title": "Descriptive Paragraph: My Favorite Season",
+            "subject": "English",
+            "description": "Write a descriptive paragraph of 150-200 words focusing on sensory details and proper adjective usage.",
+            "due_date": (today_dt - timedelta(days=2)).isoformat(),
+            "due_time": "23:59",
+            "max_marks": 15.0,
+            "attachments": [],
+            "status": AssignmentStatus.PUBLISHED,
+        },
         # Class 10-A
         {
             "class_id": "class-10a",

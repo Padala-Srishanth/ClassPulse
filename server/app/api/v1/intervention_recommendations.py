@@ -62,7 +62,7 @@ async def analyze_student_recommendations(
     require_school_access(student.school_id, current_user)
 
     recs = InterventionRecommendationService.analyze_student(student_id)
-    data = [RecommendationResponse.from_model(r).model_dump() for r in recs]
+    data = [RecommendationResponse.from_model(r).model_dump(mode="json") for r in recs]
     return success_response(data=data, status_code=status.HTTP_200_OK)
 
 
@@ -89,7 +89,7 @@ async def get_student_recommendations(
     recs = InterventionRecommendationService.get_student_recommendations(
         student_id=student_id, status_filter=status_filter
     )
-    data = [RecommendationResponse.from_model(r).model_dump() for r in recs]
+    data = [RecommendationResponse.from_model(r).model_dump(mode="json") for r in recs]
     return success_response(data=data)
 
 
@@ -117,7 +117,7 @@ async def get_class_pending_recommendations(
     require_school_access(class_obj.school_id, current_user)
 
     recs = InterventionRecommendationService.get_pending_recommendations(class_id)
-    data = [RecommendationResponse.from_model(r).model_dump() for r in recs]
+    data = [RecommendationResponse.from_model(r).model_dump(mode="json") for r in recs]
     return success_response(data=data)
 
 
@@ -136,7 +136,7 @@ async def get_school_recommendations(
     recs = InterventionRecommendationService.get_school_recommendations(
         school_id=school_id, status_filter=status_filter
     )
-    data = [RecommendationResponse.from_model(r).model_dump() for r in recs]
+    data = [RecommendationResponse.from_model(r).model_dump(mode="json") for r in recs]
     return success_response(data=data)
 
 
@@ -179,7 +179,7 @@ async def approve_recommendation(
 
     return success_response(
         data={
-            "recommendation": RecommendationResponse.from_model(updated_rec).model_dump(),
+            "recommendation": RecommendationResponse.from_model(updated_rec).model_dump(mode="json"),
             "intervention_id": intervention.id,
         },
         status_code=status.HTTP_200_OK,
@@ -218,6 +218,6 @@ async def dismiss_recommendation(
     )
 
     return success_response(
-        data=RecommendationResponse.from_model(updated_rec).model_dump(),
+        data=RecommendationResponse.from_model(updated_rec).model_dump(mode="json"),
         status_code=status.HTTP_200_OK,
     )

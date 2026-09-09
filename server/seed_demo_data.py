@@ -1148,6 +1148,31 @@ def seed_demo_data(school_id: str = "school-001", reset_existing: bool = True) -
     import uuid as _uuid_doubt
 
     _doubt_templates = [
+        # Class 6-A Doubts
+        {
+            "class_id": "class-6a", "student_idx": 0,
+            "title": "How to convert an improper fraction to a mixed fraction?",
+            "body": "When solving 17/5, how do we write it as a mixed fraction? Is 3 2/5 correct?",
+            "subject": "Mathematics", "status": DoubtStatus.ANSWERED,
+            "reply_body": "Yes, exactly! Divide 17 by 5: Quotient = 3, Remainder = 2, Divisor = 5. So it is 3 2/5 (Three and two-fifths).",
+            "teacher_id": "teacher-uid-001", "teacher_name": "Ms. Sarah Jenkins",
+        },
+        {
+            "class_id": "class-6a", "student_idx": 1,
+            "title": "Why do desert plants have spines instead of leaves?",
+            "body": "Does the spine help the plant perform photosynthesis, or is it only for protection?",
+            "subject": "Science", "status": DoubtStatus.ANSWERED,
+            "reply_body": "Spines reduce water loss through transpiration because they have minimal surface area! In cactus plants, the green fleshy stem takes over photosynthesis.",
+            "teacher_id": "teacher-uid-002", "teacher_name": "Mr. Rajesh Sharma",
+        },
+        {
+            "class_id": "class-6a", "student_idx": 2,
+            "title": "Difference between transitive and intransitive verbs?",
+            "body": "Can a sentence have an intransitive verb and still have a prepositional phrase following it?",
+            "subject": "English", "status": DoubtStatus.OPEN,
+            "reply_body": None, "teacher_id": None, "teacher_name": None,
+        },
+        # Class 10-A Doubts
         {
             "class_id": "class-10a", "student_idx": 0,
             "title": "Integration by parts: when to apply it?",

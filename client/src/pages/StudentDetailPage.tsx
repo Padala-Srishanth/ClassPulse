@@ -39,22 +39,25 @@ export const StudentDetailPage: React.FC<StudentDetailPageProps> = ({
   const [analysis, setAnalysis] = useState<StudentRiskAnalysis | null>(null);
   const [historyAlerts, setHistoryAlerts] = useState<RiskAlert[]>([]);
   const [interventions, setInterventions] = useState<Intervention[]>([]);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [reanalyzing, setReanalyzing] = useState(false);
 
   const loadAllData = async () => {
     setLoading(true);
     try {
-      const [stu, ana, hist, ints] = await Promise.all([
+      const [stu, ana, hist, ints, recs] = await Promise.all([
         studentsApi.getStudent(studentId),
         riskApi.analyzeStudent(studentId),
         riskApi.getStudentRiskHistory(studentId),
         interventionsApi.listStudentInterventions(studentId),
+        recommendationsApi.getStudentRecommendations(studentId),
       ]);
       setStudent(stu);
       setAnalysis(ana);
       setHistoryAlerts(hist);
       setInterventions(ints);
+      setRecommendations(recs);
     } catch (err) {
       console.error('Error loading student profile:', err);
     } finally {

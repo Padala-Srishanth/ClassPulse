@@ -548,19 +548,19 @@ export const TeacherRecommendationsPage: React.FC<TeacherRecommendationsPageProp
 
                     {/* Declining Signals Pills */}
                     <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                      {rec.signals_summary?.attendance_drop > 0 && (
+                      {Boolean(rec.signals_summary?.attendance_drop && rec.signals_summary.attendance_drop > 0) && (
                         <span style={{ fontSize: '0.75rem', background: '#fee2e2', color: '#991b1b', padding: '2px 8px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500 }}>
-                          <TrendingDown size={13} /> Attendance ↓ {rec.signals_summary.attendance_drop}%
+                          <TrendingDown size={13} /> Attendance ↓ {rec.signals_summary?.attendance_drop}%
                         </span>
                       )}
-                      {rec.signals_summary?.homework_drop > 0 && (
+                      {Boolean(rec.signals_summary?.homework_drop && rec.signals_summary.homework_drop > 0) && (
                         <span style={{ fontSize: '0.75rem', background: '#fef3c7', color: '#92400e', padding: '2px 8px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500 }}>
-                          <TrendingDown size={13} /> Homework ↓ {rec.signals_summary.homework_drop}%
+                          <TrendingDown size={13} /> Homework ↓ {rec.signals_summary?.homework_drop}%
                         </span>
                       )}
-                      {rec.signals_summary?.academic_drop > 0 && (
+                      {Boolean(rec.signals_summary?.academic_drop && rec.signals_summary.academic_drop > 0) && (
                         <span style={{ fontSize: '0.75rem', background: '#e0e7ff', color: '#3730a3', padding: '2px 8px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500 }}>
-                          <TrendingDown size={13} /> Academics ↓ {rec.signals_summary.academic_drop}%
+                          <TrendingDown size={13} /> Academics ↓ {rec.signals_summary?.academic_drop}%
                         </span>
                       )}
                       {rec.signals_summary?.is_persistent && (

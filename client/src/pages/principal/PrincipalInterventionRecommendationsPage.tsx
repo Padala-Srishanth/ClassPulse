@@ -557,19 +557,19 @@ export const PrincipalInterventionRecommendationsPage: React.FC<PrincipalInterve
                   <td style={{ padding: '14px 18px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        {rec.signals_summary?.attendance_drop > 0 && (
+                        {Boolean(rec.signals_summary?.attendance_drop && rec.signals_summary.attendance_drop > 0) && (
                           <span style={{ fontSize: '0.72rem', background: '#fee2e2', color: '#991b1b', padding: '1px 6px', borderRadius: 4 }}>
-                            Att ↓ {rec.signals_summary.attendance_drop}%
+                            Att ↓ {rec.signals_summary?.attendance_drop}%
                           </span>
                         )}
-                        {rec.signals_summary?.homework_drop > 0 && (
+                        {Boolean(rec.signals_summary?.homework_drop && rec.signals_summary.homework_drop > 0) && (
                           <span style={{ fontSize: '0.72rem', background: '#fef3c7', color: '#92400e', padding: '1px 6px', borderRadius: 4 }}>
-                            HW ↓ {rec.signals_summary.homework_drop}%
+                            HW ↓ {rec.signals_summary?.homework_drop}%
                           </span>
                         )}
-                        {rec.signals_summary?.academic_drop > 0 && (
+                        {Boolean(rec.signals_summary?.academic_drop && rec.signals_summary.academic_drop > 0) && (
                           <span style={{ fontSize: '0.72rem', background: '#e0e7ff', color: '#3730a3', padding: '1px 6px', borderRadius: 4 }}>
-                            Acad ↓ {rec.signals_summary.academic_drop}%
+                            Acad ↓ {rec.signals_summary?.academic_drop}%
                           </span>
                         )}
                       </div>

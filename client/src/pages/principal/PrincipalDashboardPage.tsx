@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { apiFetch } from '../../api/client';
+import { recommendationsApi } from '../../api/recommendations';
+import { InterventionRecommendation } from '../../types';
 
 interface ClassSummary {
   class_id: string;
@@ -82,7 +84,7 @@ const StatCard: React.FC<{
 export const PrincipalDashboardPage: React.FC<{ onNavigate?: (page: string) => void }> = ({ onNavigate }) => {
   const { token, schoolId } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
-  const [schoolRecs, setSchoolRecs] = useState<any[]>([]);
+  const [schoolRecs, setSchoolRecs] = useState<InterventionRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -101,7 +103,6 @@ export const PrincipalDashboardPage: React.FC<{ onNavigate?: (page: string) => v
       }
 
       if (schoolId) {
-        const { recommendationsApi } = await import('../../api/recommendations');
         const recs = await recommendationsApi.getSchoolRecommendations(schoolId);
         setSchoolRecs(recs);
       }

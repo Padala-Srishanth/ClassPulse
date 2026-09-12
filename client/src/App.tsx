@@ -43,6 +43,9 @@ import { StudentTimetablePage } from './pages/student/StudentTimetablePage';
 import { StudentAssignmentsPage } from './pages/student/StudentAssignmentsPage';
 import { StudentDoubtsPage } from './pages/student/StudentDoubtsPage';
 
+// ClassPulse AI Assistant (floating, Teacher/Principal only — see ChatbotWidget for role gating)
+import { ChatbotWidget } from './components/chatbot/ChatbotWidget';
+
 // Modals
 import { InterventionModal } from './components/InterventionModal';
 import { CreateStudentModal } from './components/CreateStudentModal';
@@ -143,19 +146,22 @@ const MainApp: React.FC = () => {
   // 2. PRINCIPAL / SCHOOL ADMIN VIEW
   if (currentUser.role === 'SCHOOL_ADMIN' || currentUser.role === 'ADMIN') {
     return (
-      <PrincipalLayout currentPage={currentPage} onNavigate={setCurrentPage}>
-        {currentPage === 'principal-dashboard' && <PrincipalDashboardPage onNavigate={setCurrentPage} />}
-        {currentPage === 'principal-recommendations' && <PrincipalInterventionRecommendationsPage />}
-        {currentPage === 'principal-monthly-analytics' && <PrincipalMonthlyAnalyticsPage />}
-        {currentPage === 'principal-assignments' && <PrincipalAssignmentsPage />}
-        {currentPage === 'principal-classes' && <ClassManagementPage />}
-        {currentPage === 'principal-teachers' && <TeacherManagementPage />}
-        {currentPage === 'principal-timetables' && <TimetableManagementPage />}
-        {currentPage === 'principal-exams' && <ExamManagementPage />}
-        {currentPage === 'principal-reports' && <PrincipalReportsPage />}
-        {currentPage === 'principal-announcements' && <PrincipalAnnouncementsPage />}
-        {(currentPage === 'principal-dashboard' || !currentPage) && <PrincipalDashboardPage onNavigate={setCurrentPage} />}
-      </PrincipalLayout>
+      <>
+        <PrincipalLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+          {currentPage === 'principal-dashboard' && <PrincipalDashboardPage onNavigate={setCurrentPage} />}
+          {currentPage === 'principal-recommendations' && <PrincipalInterventionRecommendationsPage />}
+          {currentPage === 'principal-monthly-analytics' && <PrincipalMonthlyAnalyticsPage />}
+          {currentPage === 'principal-assignments' && <PrincipalAssignmentsPage />}
+          {currentPage === 'principal-classes' && <ClassManagementPage />}
+          {currentPage === 'principal-teachers' && <TeacherManagementPage />}
+          {currentPage === 'principal-timetables' && <TimetableManagementPage />}
+          {currentPage === 'principal-exams' && <ExamManagementPage />}
+          {currentPage === 'principal-reports' && <PrincipalReportsPage />}
+          {currentPage === 'principal-announcements' && <PrincipalAnnouncementsPage />}
+          {(currentPage === 'principal-dashboard' || !currentPage) && <PrincipalDashboardPage onNavigate={setCurrentPage} />}
+        </PrincipalLayout>
+        <ChatbotWidget />
+      </>
     );
   }
 
@@ -235,6 +241,7 @@ const MainApp: React.FC = () => {
   };
 
   return (
+    <>
     <TeacherLayout currentPage={currentPage} onNavigate={setCurrentPage}>
       {renderTeacherContent()}
 
@@ -296,6 +303,8 @@ const MainApp: React.FC = () => {
         />
       )}
     </TeacherLayout>
+    <ChatbotWidget />
+    </>
   );
 };
 

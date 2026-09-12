@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="ClassPulse" version="24.0.0">
+  <diagram id="chatbot-architecture" name="ClassPulse Assistant Architecture">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="1700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Node style templates via direct style attrs -->
+
+        <mxCell id="n1" value="Teacher / Principal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="20" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n2" value="Floating Chat Button&#10;(ChatbotFloatingButton.tsx)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="330" y="100" width="240" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n3" value="Chat Panel&#10;(ChatbotPanel.tsx / ChatbotWidget.tsx)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="330" y="180" width="240" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n4" value="Existing Firebase Authentication&#10;(Authorization: Bearer &lt;ID token&gt;)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="310" y="260" width="280" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n5" value="FastAPI Chat Endpoint&#10;(app/api/v1/chatbot.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="320" y="340" width="260" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n6" value="Role + Scope Authorization&#10;(app/services/chatbot/scope.py)&#10;Teacher -&gt; own classes only | Principal/Admin -&gt; whole school" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="270" y="420" width="360" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n7" value="Chatbot Orchestrator&#10;(app/services/chatbot/orchestrator.py)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="320" y="510" width="260" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n8" value="Intent / Query Understanding&#10;(app/services/chatbot/nlu.py — deterministic, rule-based)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="290" y="590" width="320" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n9" value="Controlled ClassPulse Tools&#10;(app/services/chatbot/tools.py)&#10;get_student_summary · get_student_attendance · get_class_attendance&#10;get_students_below_attendance_threshold · get_homework_status&#10;get_student_test_scores · get_class_academic_performance&#10;get_student_risk · get_high_risk_students · get_risk_history · get_interventions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="200" y="670" width="500" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n10" value="Existing ClassPulse Services&#10;StudentService · AttendanceService · HomeworkService · TestScoreService&#10;RiskService · InterventionService · ClassService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="220" y="800" width="460" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n11" value="Firestore / Risk Engine&#10;(unchanged — read-only access to persisted RiskAlerts)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="290" y="890" width="320" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n12" value="Structured Results" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="360" y="970" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n13" value="Response Generation&#10;(app/services/chatbot/responder.py)&#10;Deterministic template reply, always correct&#10;+ optional LLM phrasing pass (Anthropic API) — never invents data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="260" y="1050" width="380" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n14" value="Chat Panel&#10;(reply + suggestions rendered to the user)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="320" y="1150" width="260" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n1" target="n2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n2" target="n3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n3" target="n4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n4" target="n5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n5" target="n6"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n6" target="n7"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n7" target="n8"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n8" target="n9"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n9" target="n10"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n10" target="n11"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n11" target="n12"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n12" target="n13"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n13" target="n14"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Feedback loop: reply flows back up into the chat panel already open on screen -->
+        <mxCell id="e14" value="renders reply" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;exitX=0;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="n14" target="n3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="120" y="1175" />
+              <mxPoint x="120" y="205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

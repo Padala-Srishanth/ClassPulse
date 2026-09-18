@@ -77,7 +77,7 @@ export const TeacherAnnouncementsPage: React.FC = () => {
               Staff Communications Hub
             </span>
           </div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '0 0 8px 0', letterSpacing: '-0.01em', color: '#ffffff' }}>
             Principal & School Announcements
           </h1>
           <p style={{ margin: 0, fontSize: '0.9rem', color: '#c7d2fe', maxWidth: '600px' }}>

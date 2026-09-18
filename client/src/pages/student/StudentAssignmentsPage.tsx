@@ -144,13 +144,13 @@ export const StudentAssignmentsPage: React.FC = () => {
       }}>
         <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '160px', height: '160px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
         <div style={{ position: 'relative' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.85, fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.9, fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#ffffff' }}>
             <FileText size={16} /> Student Classwork
           </div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: '6px 0 0', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: '6px 0 0', letterSpacing: '-0.02em', color: '#ffffff' }}>
             My Assignments
           </h1>
-          <p style={{ opacity: 0.8, fontSize: '0.88rem', margin: '4px 0 0' }}>
+          <p style={{ opacity: 0.85, fontSize: '0.88rem', margin: '4px 0 0', color: '#ffffff' }}>
             View homework deadlines, download class resources, and turn in your responses.
           </p>
         </div>

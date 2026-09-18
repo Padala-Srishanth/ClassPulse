@@ -289,11 +289,11 @@ export const TeacherRecommendationsPage: React.FC<TeacherRecommendationsPageProp
             <div style={{ background: 'rgba(255,255,255,0.15)', padding: 6, borderRadius: 8 }}>
               <Sparkles size={22} color="#fde047" />
             </div>
-            <h1 style={{ fontSize: '1.6rem', fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>
+            <h1 style={{ fontSize: '1.6rem', fontWeight: 700, letterSpacing: '-0.02em', margin: 0, color: '#ffffff' }}>
               Smart Intervention Recommendations
             </h1>
           </div>
-          <p style={{ color: '#c7d2fe', fontSize: '0.95rem', margin: 0, maxWidth: 650, lineHeight: 1.5 }}>
+          <p style={{ color: '#ffffff', fontSize: '0.95rem', margin: 0, maxWidth: 650, lineHeight: 1.5 }}>
             Automated, explainable decision support answering <strong>"What should the educator do next?"</strong>. Every action remains advisory until you approve or adjust.
           </p>
         </div>

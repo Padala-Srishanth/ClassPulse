@@ -55,10 +55,75 @@ import { classesApi } from './api/classes';
 import { SchoolClass, Student } from './types';
 
 const MainApp: React.FC = () => {
-  const { currentUser, schoolId, loading } = useAuth();
+  const { currentUser, schoolId, loading, loginAsDemo } = useAuth();
   const [currentPage, setCurrentPage] = useState<string>('');
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [classes, setClasses] = useState<SchoolClass[]>([]);
+
+  // Track URL path (/ , /teacher , /student , /principal)
+  const [currentPath, setCurrentPath] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return window.location.pathname || '/';
+    }
+    return '/';
+  });
+
+  // Listen for browser navigation (Back/Forward)
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname || '/');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateTo = (path: string) => {
+    if (typeof window !== 'undefined') {
+      if (window.location.pathname !== path) {
+        window.history.pushState(null, '', path);
+      }
+      setCurrentPath(path);
+    }
+  };
+
+  const handleRoleSelect = (role: 'TEACHER' | 'STUDENT' | 'SCHOOL_ADMIN') => {
+    if (role === 'TEACHER') {
+      navigateTo('/teacher');
+      setCurrentPage('teacher-dashboard');
+    } else if (role === 'STUDENT') {
+      navigateTo('/student');
+      setCurrentPage('student-dashboard');
+    } else if (role === 'SCHOOL_ADMIN') {
+      navigateTo('/principal');
+      setCurrentPage('principal-dashboard');
+    }
+  };
+
+  // Sync role and page if navigating directly to a route like /teacher, /student, /principal
+  useEffect(() => {
+    if (currentPath.startsWith('/student')) {
+      if (!currentUser || currentUser.role !== 'STUDENT') {
+        loginAsDemo('STUDENT');
+      }
+      if (!currentPage || !currentPage.startsWith('student-')) {
+        setCurrentPage('student-dashboard');
+      }
+    } else if (currentPath.startsWith('/principal')) {
+      if (!currentUser || (currentUser.role !== 'SCHOOL_ADMIN' && currentUser.role !== 'ADMIN')) {
+        loginAsDemo('SCHOOL_ADMIN');
+      }
+      if (!currentPage || !currentPage.startsWith('principal-')) {
+        setCurrentPage('principal-dashboard');
+      }
+    } else if (currentPath.startsWith('/teacher')) {
+      if (!currentUser || currentUser.role !== 'TEACHER') {
+        loginAsDemo('TEACHER');
+      }
+      if (!currentPage || (!currentPage.startsWith('teacher-') && currentPage !== 'student-detail')) {
+        setCurrentPage('teacher-dashboard');
+      }
+    }
+  }, [currentPath]);
 
   // Modals state
   const [interventionStudent, setInterventionStudent] = useState<Student | null>(null);
@@ -71,18 +136,6 @@ const MainApp: React.FC = () => {
 
   // Key to force refresh sub-views
   const [refreshKey, setRefreshKey] = useState(0);
-
-  // Set default page when user role changes or logs in
-  useEffect(() => {
-    if (!currentUser) return;
-    if (currentUser.role === 'STUDENT') {
-      setCurrentPage('student-dashboard');
-    } else if (currentUser.role === 'SCHOOL_ADMIN' || currentUser.role === 'ADMIN') {
-      setCurrentPage('principal-dashboard');
-    } else {
-      setCurrentPage('teacher-dashboard');
-    }
-  }, [currentUser?.role]);
 
   useEffect(() => {
     async function loadSchoolClasses() {
@@ -105,8 +158,9 @@ const MainApp: React.FC = () => {
     );
   }
 
-  if (!currentUser) {
-    return <RoleSelectionPage />;
+  // Root URL / must ALWAYS show the Role Selection Page ("Who are you?")
+  if (currentPath === '/' || currentPath === '' || !currentUser) {
+    return <RoleSelectionPage onRoleSelected={handleRoleSelect} />;
   }
 
   const handleOpenIntervention = (student: Student) => {
@@ -124,8 +178,8 @@ const MainApp: React.FC = () => {
     setIsAttendanceOpen(true);
   };
 
-  // 1. STUDENT VIEW
-  if (currentUser.role === 'STUDENT') {
+  // 1. STUDENT VIEW (/student)
+  if (currentPath.startsWith('/student') || (currentPath !== '/' && currentUser.role === 'STUDENT')) {
     return (
       <StudentLayout currentPage={currentPage} onNavigate={setCurrentPage}>
         {currentPage === 'student-monthly-report' && <StudentMonthlyReportPage />}
@@ -143,8 +197,8 @@ const MainApp: React.FC = () => {
     );
   }
 
-  // 2. PRINCIPAL / SCHOOL ADMIN VIEW
-  if (currentUser.role === 'SCHOOL_ADMIN' || currentUser.role === 'ADMIN') {
+  // 2. PRINCIPAL / SCHOOL ADMIN VIEW (/principal)
+  if (currentPath.startsWith('/principal') || (currentPath !== '/' && (currentUser.role === 'SCHOOL_ADMIN' || currentUser.role === 'ADMIN'))) {
     return (
       <>
         <PrincipalLayout currentPage={currentPage} onNavigate={setCurrentPage}>
@@ -240,72 +294,78 @@ const MainApp: React.FC = () => {
     }
   };
 
-  return (
-    <>
-    <TeacherLayout currentPage={currentPage} onNavigate={setCurrentPage}>
-      {renderTeacherContent()}
+  // 3. TEACHER VIEW (/teacher)
+  if (currentPath.startsWith('/teacher') || (currentPath !== '/' && currentUser.role === 'TEACHER')) {
+    return (
+      <>
+      <TeacherLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+        {renderTeacherContent()}
 
-      {/* Intervention Modal */}
-      {interventionStudent && (
-        <InterventionModal
-          studentId={interventionStudent.id}
-          studentName={interventionStudent.name}
-          schoolId={interventionStudent.school_id}
-          classId={interventionStudent.class_id}
-          isOpen={isInterventionModalOpen}
-          onClose={() => setIsInterventionModalOpen(false)}
-          onSuccess={() => {
-            setRefreshKey((k) => k + 1);
-            alert('Intervention action plan recorded successfully!');
-          }}
-        />
-      )}
+        {/* Intervention Modal */}
+        {interventionStudent && (
+          <InterventionModal
+            studentId={interventionStudent.id}
+            studentName={interventionStudent.name}
+            schoolId={interventionStudent.school_id}
+            classId={interventionStudent.class_id}
+            isOpen={isInterventionModalOpen}
+            onClose={() => setIsInterventionModalOpen(false)}
+            onSuccess={() => {
+              setRefreshKey((k) => k + 1);
+              alert('Intervention action plan recorded successfully!');
+            }}
+          />
+        )}
 
-      {/* Create Student Modal */}
-      {schoolId && (
-        <CreateStudentModal
-          schoolId={schoolId}
-          classes={classes}
-          isOpen={isCreateStudentOpen}
-          onClose={() => setIsCreateStudentOpen(false)}
-          onSuccess={() => {
-            setRefreshKey((k) => k + 1);
-            alert('Student enrolled successfully!');
-          }}
-        />
-      )}
+        {/* Create Student Modal */}
+        {schoolId && (
+          <CreateStudentModal
+            schoolId={schoolId}
+            classes={classes}
+            isOpen={isCreateStudentOpen}
+            onClose={() => setIsCreateStudentOpen(false)}
+            onSuccess={() => {
+              setRefreshKey((k) => k + 1);
+              alert('Student enrolled successfully!');
+            }}
+          />
+        )}
 
-      {/* Edit Student Details Modal */}
-      {editingStudent && (
-        <EditStudentModal
-          student={editingStudent}
-          isOpen={isEditStudentOpen}
-          onClose={() => setIsEditStudentOpen(false)}
-          onSuccess={() => {
-            setRefreshKey((k) => k + 1);
-            alert('Student details updated successfully!');
-          }}
-        />
-      )}
+        {/* Edit Student Details Modal */}
+        {editingStudent && (
+          <EditStudentModal
+            student={editingStudent}
+            isOpen={isEditStudentOpen}
+            onClose={() => setIsEditStudentOpen(false)}
+            onSuccess={() => {
+              setRefreshKey((k) => k + 1);
+              alert('Student details updated successfully!');
+            }}
+          />
+        )}
 
-      {/* Class Attendance Taking Modal */}
-      {attendanceClass && (
-        <TakeAttendanceModal
-          classId={attendanceClass.id}
-          className={attendanceClass.name}
-          students={attendanceClass.students}
-          isOpen={isAttendanceOpen}
-          onClose={() => setIsAttendanceOpen(false)}
-          onSuccess={() => {
-            setRefreshKey((k) => k + 1);
-            alert('Class attendance sheet submitted successfully! Cohort analytics updated.');
-          }}
-        />
-      )}
-    </TeacherLayout>
-    <ChatbotWidget />
-    </>
-  );
+        {/* Class Attendance Taking Modal */}
+        {attendanceClass && (
+          <TakeAttendanceModal
+            classId={attendanceClass.id}
+            className={attendanceClass.name}
+            students={attendanceClass.students}
+            isOpen={isAttendanceOpen}
+            onClose={() => setIsAttendanceOpen(false)}
+            onSuccess={() => {
+              setRefreshKey((k) => k + 1);
+              alert('Class attendance sheet submitted successfully! Cohort analytics updated.');
+            }}
+          />
+        )}
+      </TeacherLayout>
+      <ChatbotWidget />
+      </>
+    );
+  }
+
+  // Fallback for any other path: RoleSelectionPage
+  return <RoleSelectionPage onRoleSelected={handleRoleSelect} />;
 };
 
 export function App() {

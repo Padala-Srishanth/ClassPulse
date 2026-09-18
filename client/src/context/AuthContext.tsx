@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Initialize demo state by default for instant developer usability
+  // Initialize demo state by default if saved
   useEffect(() => {
     const savedDemo = localStorage.getItem('classpulse_demo_user');
     if (savedDemo) {
@@ -33,25 +33,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsed = JSON.parse(savedDemo);
         setCurrentUser(parsed.user);
         setToken(parsed.token);
-        setLoading(false);
-        return;
       } catch (e) {
         localStorage.removeItem('classpulse_demo_user');
+        setCurrentUser(null);
+        setToken(null);
       }
+    } else {
+      setCurrentUser(null);
+      setToken(null);
     }
-
-    // Default to Teacher mode for seamless onboarding
-    const defaultTeacher: User = {
-      id: 'teacher-uid-001',
-      firebase_uid: 'teacher-uid-001',
-      email: 'teacher@school-001.example.com',
-      name: 'Sarah Jenkins (Mathematics)',
-      role: 'TEACHER',
-      school_id: 'school-001',
-      status: 'ACTIVE',
-    };
-    setCurrentUser(defaultTeacher);
-    setToken('mock-teacher-token:teacher-uid-001');
     setLoading(false);
   }, []);
 
@@ -154,6 +144,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentUser(null);
     setToken(null);
     localStorage.removeItem('classpulse_demo_user');
+    localStorage.removeItem('classpulse_class_id');
+    if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+      window.history.pushState(null, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
   };
 
   return (

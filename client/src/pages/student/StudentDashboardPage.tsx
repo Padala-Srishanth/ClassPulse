@@ -74,11 +74,11 @@ export const StudentDashboardPage: React.FC<StudentDashboardPageProps> = ({ onNa
         <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
         <div style={{ position: 'absolute', bottom: '-40px', right: '100px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
         <div style={{ position: 'relative' }}>
-          <p style={{ opacity: 0.7, fontSize: '0.85rem', margin: '0 0 6px 0', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Welcome back</p>
-          <h1 style={{ fontSize: '2rem', fontWeight: 900, margin: '0 0 8px 0', letterSpacing: '-0.02em' }}>
+          <p style={{ opacity: 0.85, fontSize: '0.85rem', margin: '0 0 6px 0', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#ffffff' }}>Welcome back</p>
+          <h1 style={{ fontSize: '2rem', fontWeight: 900, margin: '0 0 8px 0', letterSpacing: '-0.02em', color: '#ffffff' }}>
             {currentUser?.name?.replace(' (Student)', '') || 'Student'} 👋
           </h1>
-          <p style={{ opacity: 0.8, fontSize: '0.9rem', margin: 0 }}>
+          <p style={{ opacity: 0.9, fontSize: '0.9rem', margin: 0, color: '#ffffff' }}>
             Here's your academic summary for today.
           </p>
         </div>

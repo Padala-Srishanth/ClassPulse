@@ -23,6 +23,7 @@ from fastapi import APIRouter
 from app.api.v1 import (
     announcements,
     assignments,
+    auth,
     chatbot,
     classes,
     doubts,
@@ -48,6 +49,7 @@ from app.api.v1 import (
 v1_router = APIRouter(prefix="/v1")
 
 v1_router.include_router(health.router)
+v1_router.include_router(auth.router, prefix="/auth")
 v1_router.include_router(schools.router, prefix="/schools")
 v1_router.include_router(users.router, prefix="/users")
 v1_router.include_router(classes.router, prefix="/classes")

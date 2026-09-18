@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Activity, BookOpen, GraduationCap, Shield, ArrowRight, Sparkles } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
 
 type RoleChoice = 'TEACHER' | 'STUDENT' | 'SCHOOL_ADMIN';
@@ -58,23 +57,17 @@ interface RoleSelectionPageProps {
 }
 
 export const RoleSelectionPage: React.FC<RoleSelectionPageProps> = ({ onRoleSelected }) => {
-  const { loginAsDemo } = useAuth();
   const [hoveredRole, setHoveredRole] = useState<RoleChoice | null>(null);
   const [selectedRole, setSelectedRole] = useState<RoleChoice | null>(null);
 
   const handleRoleSelect = (role: RoleChoice) => {
     setSelectedRole(role);
-    // Demo login directly — no intermediate login screen needed
-    loginAsDemo(role as UserRole);
+    // Navigate to corresponding login page — do NOT auto-login
     if (onRoleSelected) onRoleSelected(role);
   };
 
-  const handleTeacherPersonaSelect = (e: React.MouseEvent, teacherId: string) => {
-    e.stopPropagation();
-    setSelectedRole('TEACHER');
-    loginAsDemo('TEACHER', 'school-001', teacherId);
-    if (onRoleSelected) onRoleSelected('TEACHER');
-  };
+
+
 
   return (
     <div
@@ -242,7 +235,7 @@ export const RoleSelectionPage: React.FC<RoleSelectionPageProps> = ({ onRoleSele
               {card.role === 'TEACHER' && (
                 <div style={{ marginBottom: '16px' }}>
                   <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '6px', fontWeight: 700, letterSpacing: '0.04em' }}>
-                    QUICK-SELECT SUBJECT TEACHER:
+                    EXAMPLE TEACHER IDs:
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {[
@@ -250,33 +243,22 @@ export const RoleSelectionPage: React.FC<RoleSelectionPageProps> = ({ onRoleSele
                       { id: 'teacher-uid-002', label: '⚛️ Rajesh Sharma (Physics)' },
                       { id: 'teacher-uid-005', label: '📖 Pooja Bose (English)' },
                     ].map((t) => (
-                      <button
+                      <div
                         key={t.id}
-                        type="button"
-                        onClick={(e) => handleTeacherPersonaSelect(e, t.id)}
                         style={{
                           padding: '6px 10px',
                           borderRadius: '8px',
-                          border: '1px solid rgba(124, 58, 237, 0.4)',
-                          background: 'rgba(79, 70, 229, 0.15)',
+                          border: '1px solid rgba(124, 58, 237, 0.3)',
+                          background: 'rgba(79, 70, 229, 0.08)',
                           color: '#c7d2fe',
                           fontSize: '0.75rem',
                           fontWeight: 600,
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          transition: 'all 0.15s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(79, 70, 229, 0.35)';
-                          e.currentTarget.style.color = '#ffffff';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(79, 70, 229, 0.15)';
-                          e.currentTarget.style.color = '#c7d2fe';
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                         }}
                       >
-                        {t.label}
-                      </button>
+                        <span>{t.label}</span>
+                        <span style={{ fontFamily: 'monospace', fontSize: '0.7rem', color: '#818cf8' }}>{t.id}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -337,16 +319,16 @@ export const RoleSelectionPage: React.FC<RoleSelectionPageProps> = ({ onRoleSele
         })}
       </div>
 
-      {/* Demo badge */}
+      {/* Info badge */}
       <div style={{
         marginTop: '48px', position: 'relative', zIndex: 1,
-        background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)',
+        background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)',
         borderRadius: '10px', padding: '12px 20px',
         display: 'flex', alignItems: 'center', gap: '8px',
-        color: '#fbbf24', fontSize: '0.8rem', fontWeight: 600,
+        color: '#a5b4fc', fontSize: '0.8rem', fontWeight: 600,
       }}>
         <Sparkles size={14} />
-        <span>DEMO MODE — Click any card for instant access. No password required.</span>
+        <span>Select your role to proceed to your login page.</span>
       </div>
 
       <style>{`

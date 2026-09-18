@@ -12,6 +12,7 @@ interface AuthContextType {
   loading: boolean;
   loginWithEmail: (email: string, pass: string) => Promise<void>;
   loginAsDemo: (role: UserRole, schoolId?: string, teacherId?: string) => void;
+  loginWithCredentials: (user: User, token: string) => void;
   logout: () => Promise<void>;
 }
 
@@ -134,6 +135,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
+  const loginWithCredentials = (user: User, token: string) => {
+    setCurrentUser(user);
+    setToken(token);
+    localStorage.setItem(
+      'classpulse_demo_user',
+      JSON.stringify({ user, token })
+    );
+    // Set class_id for students
+    if (user.role === 'STUDENT' && (user as any).class_id) {
+      localStorage.setItem('classpulse_class_id', (user as any).class_id);
+    }
+  };
+
   const logout = async () => {
     try {
       await signOut(auth);
@@ -162,6 +176,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         loginWithEmail,
         loginAsDemo,
+        loginWithCredentials,
         logout,
       }}
     >

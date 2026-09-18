@@ -156,7 +156,7 @@ async def verify_firebase_token(id_token: str) -> Dict[str, Any]:
             s_uid = parts[1] if len(parts) > 1 else "sadmin-uid-001"
             return {
                 "uid": s_uid,
-                "email": "principal@school-001.example.com",
+                "email": f"{s_uid}@school-001.example.com",
                 "email_verified": True,
                 "role": "SCHOOL_ADMIN",
                 "school_id": "school-001",
@@ -166,11 +166,11 @@ async def verify_firebase_token(id_token: str) -> Dict[str, Any]:
             st_uid = parts[1] if len(parts) > 1 else "student-uid-001"
             return {
                 "uid": st_uid,
-                "email": "student001@school-001.example.com",
+                "email": f"{st_uid}@school-001.example.com",
                 "email_verified": True,
                 "role": "STUDENT",
                 "school_id": "school-001",
-                "student_id": "demo-student-001",
+                "student_id": st_uid,  # student_id = actual Firestore student doc ID
             }
         if id_token.startswith("mock-admin-token"):
             return {

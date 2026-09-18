@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { RoleSelectionPage } from './pages/RoleSelectionPage';
+import { StudentLoginPage } from './pages/LoginStudentPage';
+import { TeacherLoginPage } from './pages/LoginTeacherPage';
+import { PrincipalLoginPage } from './pages/LoginPrincipalPage';
 
 // Teacher layout & pages
 import { TeacherLayout } from './layouts/TeacherLayout';
@@ -55,12 +58,12 @@ import { classesApi } from './api/classes';
 import { SchoolClass, Student } from './types';
 
 const MainApp: React.FC = () => {
-  const { currentUser, schoolId, loading, loginAsDemo } = useAuth();
+  const { currentUser, schoolId, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState<string>('');
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [classes, setClasses] = useState<SchoolClass[]>([]);
 
-  // Track URL path (/ , /teacher , /student , /principal)
+  // Track URL path
   const [currentPath, setCurrentPath] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       return window.location.pathname || '/';
@@ -86,39 +89,47 @@ const MainApp: React.FC = () => {
     }
   };
 
+  // Role selection → navigate to login pages (NOT directly to dashboards)
   const handleRoleSelect = (role: 'TEACHER' | 'STUDENT' | 'SCHOOL_ADMIN') => {
     if (role === 'TEACHER') {
-      navigateTo('/teacher');
-      setCurrentPage('teacher-dashboard');
+      navigateTo('/login/teacher');
     } else if (role === 'STUDENT') {
-      navigateTo('/student');
-      setCurrentPage('student-dashboard');
+      navigateTo('/login/student');
     } else if (role === 'SCHOOL_ADMIN') {
-      navigateTo('/principal');
-      setCurrentPage('principal-dashboard');
+      navigateTo('/login/principal');
     }
   };
 
-  // Sync role and page if navigating directly to a route like /teacher, /student, /principal
+  // After successful login, navigate to the dashboard
+  const handleStudentLoginSuccess = () => {
+    navigateTo('/student');
+    setCurrentPage('student-dashboard');
+  };
+  const handleTeacherLoginSuccess = () => {
+    navigateTo('/teacher');
+    setCurrentPage('teacher-dashboard');
+  };
+  const handlePrincipalLoginSuccess = () => {
+    navigateTo('/principal');
+    setCurrentPage('principal-dashboard');
+  };
+
+  // Back to role selection from any login page
+  const handleBackToRoleSelection = () => {
+    navigateTo('/');
+  };
+
+  // Set page name when navigating directly to a dashboard URL with an existing session
   useEffect(() => {
-    if (currentPath.startsWith('/student')) {
-      if (!currentUser || currentUser.role !== 'STUDENT') {
-        loginAsDemo('STUDENT');
-      }
+    if (currentPath.startsWith('/student') && !currentPath.startsWith('/login')) {
       if (!currentPage || !currentPage.startsWith('student-')) {
         setCurrentPage('student-dashboard');
       }
-    } else if (currentPath.startsWith('/principal')) {
-      if (!currentUser || (currentUser.role !== 'SCHOOL_ADMIN' && currentUser.role !== 'ADMIN')) {
-        loginAsDemo('SCHOOL_ADMIN');
-      }
+    } else if (currentPath.startsWith('/principal') && !currentPath.startsWith('/login')) {
       if (!currentPage || !currentPage.startsWith('principal-')) {
         setCurrentPage('principal-dashboard');
       }
-    } else if (currentPath.startsWith('/teacher')) {
-      if (!currentUser || currentUser.role !== 'TEACHER') {
-        loginAsDemo('TEACHER');
-      }
+    } else if (currentPath.startsWith('/teacher') && !currentPath.startsWith('/login')) {
       if (!currentPage || (!currentPage.startsWith('teacher-') && currentPage !== 'student-detail')) {
         setCurrentPage('teacher-dashboard');
       }
@@ -158,11 +169,6 @@ const MainApp: React.FC = () => {
     );
   }
 
-  // Root URL / must ALWAYS show the Role Selection Page ("Who are you?")
-  if (currentPath === '/' || currentPath === '' || !currentUser) {
-    return <RoleSelectionPage onRoleSelected={handleRoleSelect} />;
-  }
-
   const handleOpenIntervention = (student: Student) => {
     setInterventionStudent(student);
     setIsInterventionModalOpen(true);
@@ -178,8 +184,54 @@ const MainApp: React.FC = () => {
     setIsAttendanceOpen(true);
   };
 
-  // 1. STUDENT VIEW (/student)
-  if (currentPath.startsWith('/student') || (currentPath !== '/' && currentUser.role === 'STUDENT')) {
+  // -------------------------------------------------------------------------
+  // ROOT — always show role selection
+  // -------------------------------------------------------------------------
+  if (currentPath === '/' || currentPath === '') {
+    return <RoleSelectionPage onRoleSelected={handleRoleSelect} />;
+  }
+
+  // -------------------------------------------------------------------------
+  // LOGIN PAGES — shown regardless of auth state
+  // -------------------------------------------------------------------------
+  if (currentPath === '/login/student') {
+    return (
+      <StudentLoginPage
+        onBack={handleBackToRoleSelection}
+        onSuccess={handleStudentLoginSuccess}
+      />
+    );
+  }
+
+  if (currentPath === '/login/teacher') {
+    return (
+      <TeacherLoginPage
+        onBack={handleBackToRoleSelection}
+        onSuccess={handleTeacherLoginSuccess}
+      />
+    );
+  }
+
+  if (currentPath === '/login/principal') {
+    return (
+      <PrincipalLoginPage
+        onBack={handleBackToRoleSelection}
+        onSuccess={handlePrincipalLoginSuccess}
+      />
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // PROTECTED ROUTES — require authentication with correct role
+  // -------------------------------------------------------------------------
+
+  // 1. STUDENT VIEW (/student) — requires STUDENT role
+  if (currentPath.startsWith('/student')) {
+    // Not authenticated or wrong role → redirect to student login
+    if (!currentUser || currentUser.role !== 'STUDENT') {
+      navigateTo('/login/student');
+      return null;
+    }
     return (
       <StudentLayout currentPage={currentPage} onNavigate={setCurrentPage}>
         {currentPage === 'student-monthly-report' && <StudentMonthlyReportPage />}
@@ -197,8 +249,13 @@ const MainApp: React.FC = () => {
     );
   }
 
-  // 2. PRINCIPAL / SCHOOL ADMIN VIEW (/principal)
-  if (currentPath.startsWith('/principal') || (currentPath !== '/' && (currentUser.role === 'SCHOOL_ADMIN' || currentUser.role === 'ADMIN'))) {
+  // 2. PRINCIPAL / SCHOOL ADMIN VIEW (/principal) — requires SCHOOL_ADMIN or ADMIN role
+  if (currentPath.startsWith('/principal')) {
+    // Not authenticated or wrong role → redirect to principal login
+    if (!currentUser || (currentUser.role !== 'SCHOOL_ADMIN' && currentUser.role !== 'ADMIN')) {
+      navigateTo('/login/principal');
+      return null;
+    }
     return (
       <>
         <PrincipalLayout currentPage={currentPage} onNavigate={setCurrentPage}>
@@ -219,7 +276,7 @@ const MainApp: React.FC = () => {
     );
   }
 
-  // 3. TEACHER VIEW (DEFAULT)
+  // 3. TEACHER VIEW (/teacher) — requires TEACHER role
   const renderTeacherContent = () => {
     if (currentPage === 'student-detail' && selectedStudentId) {
       return (
@@ -294,8 +351,12 @@ const MainApp: React.FC = () => {
     }
   };
 
-  // 3. TEACHER VIEW (/teacher)
-  if (currentPath.startsWith('/teacher') || (currentPath !== '/' && currentUser.role === 'TEACHER')) {
+  if (currentPath.startsWith('/teacher')) {
+    // Not authenticated or wrong role → redirect to teacher login
+    if (!currentUser || currentUser.role !== 'TEACHER') {
+      navigateTo('/login/teacher');
+      return null;
+    }
     return (
       <>
       <TeacherLayout currentPage={currentPage} onNavigate={setCurrentPage}>
@@ -364,9 +425,10 @@ const MainApp: React.FC = () => {
     );
   }
 
-  // Fallback for any other path: RoleSelectionPage
+  // Fallback for any other path: Role Selection Page
   return <RoleSelectionPage onRoleSelected={handleRoleSelect} />;
 };
+
 
 export function App() {
   return (

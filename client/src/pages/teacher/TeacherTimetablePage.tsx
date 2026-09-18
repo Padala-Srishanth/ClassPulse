@@ -121,10 +121,10 @@ export const TeacherTimetablePage: React.FC = () => {
         <div style={{ position: 'relative' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
             <CalendarDays size={22} color="#a5b4fc" />
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.8 }}>My Teaching Schedule</span>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.8, color: '#ffffff' }}>My Teaching Schedule</span>
           </div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: 0 }}>My Timetable</h1>
-          <p style={{ opacity: 0.75, margin: '6px 0 0', fontSize: '0.9rem' }}>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: 0, color: '#ffffff' }}>My Timetable</h1>
+          <p style={{ opacity: 0.85, margin: '6px 0 0', fontSize: '0.9rem', color: '#ffffff' }}>
             {totalPeriodsPerWeek} period{totalPeriodsPerWeek !== 1 ? 's' : ''} per week
           </p>
         </div>

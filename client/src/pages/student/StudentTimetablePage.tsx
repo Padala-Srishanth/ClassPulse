@@ -104,10 +104,10 @@ export const StudentTimetablePage: React.FC = () => {
         <div style={{ position: 'relative' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
             <CalendarDays size={22} color="#7dd3fc" />
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.8 }}>Weekly Timetable</span>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.8, color: '#ffffff' }}>Weekly Timetable</span>
           </div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: 0, letterSpacing: '-0.02em' }}>My Schedule</h1>
-          <p style={{ opacity: 0.75, margin: '6px 0 0', fontSize: '0.9rem' }}>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: 0, letterSpacing: '-0.02em', color: '#ffffff' }}>My Schedule</h1>
+          <p style={{ opacity: 0.85, margin: '6px 0 0', fontSize: '0.9rem', color: '#ffffff' }}>
             {timetableData?.today_label ? `Today (${timetableData.today_label}): ${todaySlots.length} period${todaySlots.length !== 1 ? 's' : ''}` : 'Your class timetable'}
           </p>
         </div>

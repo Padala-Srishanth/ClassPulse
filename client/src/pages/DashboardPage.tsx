@@ -207,7 +207,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0 }}>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: '#ffffff' }}>
                     Recommended Actions
                   </h3>
                   <div style={{ display: 'flex', gap: 6 }}>
@@ -223,7 +223,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     )}
                   </div>
                 </div>
-                <p style={{ margin: '4px 0 0', color: '#c7d2fe', fontSize: '0.86rem' }}>
+                <p style={{ margin: '4px 0 0', color: '#ffffff', fontSize: '0.86rem' }}>
                   {pendingRecs.length} students have targeted smart recommendations generated from recent attendance and performance trends.
                 </p>
               </div>

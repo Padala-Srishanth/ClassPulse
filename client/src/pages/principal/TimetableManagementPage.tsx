@@ -183,10 +183,10 @@ export const TimetableManagementPage: React.FC = () => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
           <CalendarDays size={22} color="#6ee7b7" />
-          <span style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.8 }}>Timetable Management</span>
+          <span style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.8, color: '#ffffff' }}>Timetable Management</span>
         </div>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: 0 }}>Class Timetable</h1>
-        <p style={{ opacity: 0.75, margin: '6px 0 0', fontSize: '0.9rem' }}>Set weekly schedules for each class</p>
+        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: 0, color: '#ffffff' }}>Class Timetable</h1>
+        <p style={{ opacity: 0.85, margin: '6px 0 0', fontSize: '0.9rem', color: '#ffffff' }}>Set weekly schedules for each class</p>
       </div>
 
       {/* Alerts */}

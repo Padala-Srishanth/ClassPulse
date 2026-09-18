@@ -288,10 +288,10 @@ export const TeacherAssignmentsPage: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.8, fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               <FileText size={16} /> Classwork & Academic Assignments
             </div>
-            <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: '6px 0 0', letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: '6px 0 0', letterSpacing: '-0.02em', color: '#ffffff' }}>
               Assignments Management
             </h1>
-            <p style={{ opacity: 0.75, fontSize: '0.88rem', margin: '4px 0 0' }}>
+            <p style={{ opacity: 0.85, fontSize: '0.88rem', margin: '4px 0 0', color: '#ffffff' }}>
               Create classwork, track student turn-ins, and publish evaluations.
             </p>
           </div>

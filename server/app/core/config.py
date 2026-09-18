@@ -74,6 +74,25 @@ class Settings(BaseSettings):
     ENABLE_DEMO_AUTH: bool = True
 
     # -------------------------------------------------------------------------
+    # ClassPulse AI Assistant (Chatbot)
+    #
+    # The chatbot's intent understanding, authorization, and data retrieval are
+    # ALWAYS deterministic backend logic (see app/services/chatbot/). These
+    # settings only control an OPTIONAL final "phrasing" pass that makes the
+    # already-computed, already-authorized response read more naturally.
+    #
+    # If ANTHROPIC_API_KEY is not set, the chatbot falls back to its built-in
+    # template-based response generator and remains fully functional — no
+    # external API key is required to use the assistant.
+    #
+    # SECURITY: The LLM (when enabled) never receives raw credentials, tokens,
+    # or unrestricted database access — only the already-authorized, already-
+    # aggregated JSON produced by the controlled chatbot tools.
+    # -------------------------------------------------------------------------
+    ANTHROPIC_API_KEY: str = ""
+    CHATBOT_LLM_MODEL: str = "claude-haiku-4-5-20251001"
+
+    # -------------------------------------------------------------------------
     # Computed properties
     # -------------------------------------------------------------------------
 
@@ -96,6 +115,11 @@ class Settings(BaseSettings):
         Can be explicitly disabled by setting ENABLE_DEMO_AUTH=false in environment variables.
         """
         return self.ENABLE_DEMO_AUTH
+
+    @property
+    def chatbot_llm_enabled(self) -> bool:
+        """True if the optional LLM phrasing pass should be used for chatbot replies."""
+        return bool(self.ANTHROPIC_API_KEY)
 
     @property
     def cors_origins_list(self) -> List[str]:

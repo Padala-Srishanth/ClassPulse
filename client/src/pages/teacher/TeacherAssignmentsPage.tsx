@@ -366,8 +366,7 @@ export const TeacherAssignmentsPage: React.FC = () => {
       {/* Assignments List */}
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '60px', color: '#64748b', gap: '10px', alignItems: 'center' }}>
-          <RefreshCw size={24} style={{ animation: 'spin 1s linear infinite' }} /> Loading assignments...
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          <RefreshCw size={24} /> Loading assignments...
         </div>
       ) : assignments.length === 0 ? (
         <div style={{
@@ -700,7 +699,7 @@ export const TeacherAssignmentsPage: React.FC = () => {
             <div style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
               {loadingRoster ? (
                 <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', color: '#64748b', gap: '8px' }}>
-                  <RefreshCw size={20} style={{ animation: 'spin 1s linear infinite' }} /> Loading submissions...
+                  <RefreshCw size={20} /> Loading submissions...
                 </div>
               ) : roster.length === 0 ? (
                 <p style={{ textAlign: 'center', color: '#64748b' }}>No students found in this class.</p>

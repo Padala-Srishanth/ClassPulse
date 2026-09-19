@@ -149,10 +149,10 @@ export const ExamManagementPage: React.FC = () => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
           <GraduationCap size={22} color="#6ee7b7" />
-          <span style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.8 }}>Exam Management</span>
+          <span style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.85, color: '#ffffff' }}>Exam Management</span>
         </div>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: 0 }}>School Exams</h1>
-        <p style={{ opacity: 0.75, margin: '6px 0 0', fontSize: '0.9rem' }}>Create and manage exam schedules for all classes</p>
+        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: 0, color: '#ffffff' }}>School Exams</h1>
+        <p style={{ opacity: 0.85, margin: '6px 0 0', fontSize: '0.9rem', color: '#ffffff' }}>Create and manage exam schedules for all classes</p>
       </div>
 
       {/* Alerts */}

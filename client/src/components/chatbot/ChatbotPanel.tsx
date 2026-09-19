@@ -117,12 +117,10 @@ export const ChatbotPanel: React.FC<ChatbotPanelProps> = ({
               <span
                 key={i}
                 style={{
-                  width: '6px', height: '6px', borderRadius: '50%', background: '#a5b4fc',
-                  animation: `classpulse-chat-bounce 1.2s ${i * 0.15}s infinite ease-in-out`,
+                  width: '6px', height: '6px', borderRadius: '50%', background: '#a5b4fc', opacity: 0.7,
                 }}
               />
             ))}
-            <style>{`@keyframes classpulse-chat-bounce { 0%, 80%, 100% { opacity: 0.3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }`}</style>
           </div>
         )}
       </div>

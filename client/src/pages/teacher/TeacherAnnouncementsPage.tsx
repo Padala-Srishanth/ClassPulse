@@ -126,7 +126,7 @@ export const TeacherAnnouncementsPage: React.FC = () => {
             cursor: 'pointer',
           }}
         >
-          <RefreshCw size={14} className={loading ? 'spin-anim' : ''} />
+          <RefreshCw size={14} />
           Refresh
         </button>
       </div>
@@ -134,9 +134,8 @@ export const TeacherAnnouncementsPage: React.FC = () => {
       {/* Announcements List */}
       {loading ? (
         <div style={{ padding: '60px', textAlign: 'center', color: '#94a3b8' }}>
-          <RefreshCw size={28} color="#6366f1" style={{ animation: 'spin 1s linear infinite', marginBottom: '12px' }} />
+          <RefreshCw size={28} color="#6366f1" style={{ marginBottom: '12px' }} />
           <p style={{ margin: 0 }}>Loading announcements...</p>
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       ) : filteredAnnouncements.length === 0 ? (
         <div

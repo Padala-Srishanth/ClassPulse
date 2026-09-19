@@ -60,13 +60,11 @@ export const PrincipalLoginPage: React.FC<PrincipalLoginPageProps> = ({ onBack, 
         position: 'absolute', top: '-20%', left: '-10%',
         width: '500px', height: '500px', borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(5,150,105,0.12) 0%, transparent 70%)',
-        animation: 'pulse 6s ease-in-out infinite',
       }} />
       <div style={{
         position: 'absolute', bottom: '-15%', right: '-10%',
         width: '400px', height: '400px', borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(4,120,87,0.10) 0%, transparent 70%)',
-        animation: 'pulse 8s ease-in-out infinite 2s',
       }} />
 
       {/* Card */}

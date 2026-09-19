@@ -95,8 +95,7 @@ export const ClassManagementPage: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {reportLoading ? (
               <div style={{ background: 'white', borderRadius: '16px', padding: '60px', textAlign: 'center', border: '1px solid #e2e8f0' }}>
-                <RefreshCw size={28} color="#059669" style={{ animation: 'spin 1s linear infinite', marginBottom: '12px' }} />
-                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                <RefreshCw size={28} color="#059669" style={{ marginBottom: '12px' }} />
                 <p style={{ color: '#64748b' }}>Loading class report...</p>
               </div>
             ) : classReport ? (

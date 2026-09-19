@@ -124,7 +124,7 @@ export const PrincipalMonthlyAnalyticsPage: React.FC = () => {
               className="monthly-btn-icon"
               title="Regenerate School Report"
             >
-              <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+              <RefreshCw size={16} />
             </button>
           </div>
         </div>
@@ -132,7 +132,7 @@ export const PrincipalMonthlyAnalyticsPage: React.FC = () => {
 
       {loading && !schoolReport ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '240px', gap: '12px', color: '#64748b' }}>
-          <RefreshCw size={32} color="#4f46e5" className="animate-spin" />
+          <RefreshCw size={32} color="#4f46e5" />
           <p style={{ fontSize: '0.9rem' }}>Aggregating school-wide monthly intelligence...</p>
         </div>
       ) : schoolReport ? (

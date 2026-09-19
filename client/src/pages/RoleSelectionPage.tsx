@@ -326,13 +326,6 @@ export const RoleSelectionPage: React.FC<RoleSelectionPageProps> = ({ onRoleSele
         <Sparkles size={14} />
         <span>Select your role to proceed to your login page.</span>
       </div>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.05); opacity: 0.7; }
-        }
-      `}</style>
     </div>
   );
 };

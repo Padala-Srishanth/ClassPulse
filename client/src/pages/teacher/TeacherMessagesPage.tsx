@@ -64,8 +64,7 @@ export const TeacherMessagesPage: React.FC = () => {
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>
-          <RefreshCw size={28} color="#4f46e5" style={{ animation: 'spin 1s linear infinite' }} />
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          <RefreshCw size={28} color="#4f46e5" />
           <p style={{ marginTop: '12px' }}>Loading appointment requests...</p>
         </div>
       ) : requests.length === 0 ? (

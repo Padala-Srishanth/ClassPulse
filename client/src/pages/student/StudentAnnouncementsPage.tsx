@@ -37,8 +37,7 @@ export const StudentAnnouncementsPage: React.FC = () => {
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>
-          <RefreshCw size={28} color="#0891b2" style={{ animation: 'spin 1s linear infinite', marginBottom: '12px' }} />
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          <RefreshCw size={28} color="#0891b2" style={{ marginBottom: '12px' }} />
           <p>Loading announcements...</p>
         </div>
       ) : announcements.length === 0 ? (

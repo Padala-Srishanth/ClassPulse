@@ -151,8 +151,7 @@ export const StudentMessagesPage: React.FC = () => {
       {/* Requests list */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>
-          <RefreshCw size={28} color="#0891b2" style={{ animation: 'spin 1s linear infinite' }} />
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          <RefreshCw size={28} color="#0891b2" />
         </div>
       ) : requests.length === 0 ? (
         <div style={{ background: 'white', borderRadius: '16px', padding: '60px', textAlign: 'center', border: '1px solid #e2e8f0' }}>

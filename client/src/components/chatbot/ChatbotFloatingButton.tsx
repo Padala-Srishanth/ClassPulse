@@ -29,13 +29,7 @@ export const ChatbotFloatingButton: React.FC<ChatbotFloatingButtonProps> = ({ is
         justifyContent: 'center',
         boxShadow: '0 8px 24px rgba(79, 70, 229, 0.45)',
         zIndex: 9998,
-        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.transform = 'scale(1.06)';
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+        transition: 'box-shadow 0.15s ease',
       }}
     >
       {isOpen ? <X size={24} /> : <MessageCircle size={24} />}

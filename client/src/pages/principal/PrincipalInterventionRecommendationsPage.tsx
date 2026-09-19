@@ -290,7 +290,7 @@ export const PrincipalInterventionRecommendationsPage: React.FC<PrincipalInterve
               backdropFilter: 'blur(4px)',
             }}
           >
-            <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+            <RefreshCw size={16} />
             Refresh
           </button>
         </div>
@@ -485,7 +485,7 @@ export const PrincipalInterventionRecommendationsPage: React.FC<PrincipalInterve
       {/* Main Content Area */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-          <RefreshCw size={32} className="animate-spin" color="#059669" style={{ margin: '0 auto 16px' }} />
+          <RefreshCw size={32} color="#059669" style={{ margin: '0 auto 16px' }} />
           <p style={{ color: '#64748b', fontSize: '0.95rem' }}>Loading school recommendations...</p>
         </div>
       ) : filteredRecs.length === 0 ? (
@@ -846,7 +846,7 @@ export const PrincipalInterventionRecommendationsPage: React.FC<PrincipalInterve
                   gap: 6,
                 }}
               >
-                {submittingApprove ? <RefreshCw size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                {submittingApprove ? <RefreshCw size={16} /> : <CheckCircle2 size={16} />}
                 Sanction Intervention Plan
               </button>
             </div>

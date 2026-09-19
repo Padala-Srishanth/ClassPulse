@@ -81,6 +81,11 @@ const MainApp: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Pre-warm backend API immediately on app load (wakes Render free-tier container from sleep)
+  useEffect(() => {
+    apiFetch('/api/v1/health').catch(() => {});
+  }, []);
+
   const navigateTo = (path: string) => {
     if (typeof window !== 'undefined') {
       if (window.location.pathname !== path) {

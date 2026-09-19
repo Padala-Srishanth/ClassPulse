@@ -76,9 +76,8 @@ export const StudentTimetablePage: React.FC = () => {
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px', flexDirection: 'column', gap: '16px' }}>
-        <RefreshCw size={32} color="#0891b2" style={{ animation: 'spin 1s linear infinite' }} />
+        <RefreshCw size={32} color="#0891b2" />
         <p style={{ color: '#64748b' }}>Loading your timetable...</p>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }

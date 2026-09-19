@@ -224,7 +224,7 @@ export const StudentAssignmentsPage: React.FC = () => {
       {/* Assignments List */}
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '60px', color: '#64748b', gap: '8px' }}>
-          <RefreshCw size={24} style={{ animation: 'spin 1s linear infinite' }} /> Loading assignments...
+          <RefreshCw size={24} /> Loading assignments...
         </div>
       ) : displayedItems.length === 0 ? (
         <div style={{

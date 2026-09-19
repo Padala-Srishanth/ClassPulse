@@ -79,13 +79,13 @@ export const PrincipalAssignmentsPage: React.FC = () => {
       }}>
         <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '160px', height: '160px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
         <div style={{ position: 'relative' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.8, fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.85, fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#ffffff' }}>
             <BarChart3 size={16} /> Academic Monitoring
           </div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: '6px 0 0', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: '6px 0 0', letterSpacing: '-0.02em', color: '#ffffff' }}>
             School Assignments & Classwork Overview
           </h1>
-          <p style={{ opacity: 0.75, fontSize: '0.88rem', margin: '4px 0 0' }}>
+          <p style={{ opacity: 0.85, fontSize: '0.88rem', margin: '4px 0 0', color: '#ffffff' }}>
             Track school-wide assignment completion rates, evaluate teacher classwork frequency, and detect overdue cohorts.
           </p>
         </div>

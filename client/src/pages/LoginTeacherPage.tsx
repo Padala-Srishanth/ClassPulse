@@ -261,10 +261,6 @@ export const TeacherLoginPage: React.FC<TeacherLoginPageProps> = ({ onBack, onSu
       </div>
 
       <style>{`
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.05); opacity: 0.7; }
-        }
         input::placeholder { color: #475569; }
       `}</style>
     </div>

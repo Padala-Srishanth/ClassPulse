@@ -4,6 +4,7 @@ import { RoleSelectionPage } from './pages/RoleSelectionPage';
 import { StudentLoginPage } from './pages/LoginStudentPage';
 import { TeacherLoginPage } from './pages/LoginTeacherPage';
 import { PrincipalLoginPage } from './pages/LoginPrincipalPage';
+import { apiFetch } from './api/client';
 
 // Teacher layout & pages
 import { TeacherLayout } from './layouts/TeacherLayout';

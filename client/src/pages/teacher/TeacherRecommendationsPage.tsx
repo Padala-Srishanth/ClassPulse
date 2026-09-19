@@ -321,7 +321,7 @@ export const TeacherRecommendationsPage: React.FC<TeacherRecommendationsPageProp
           onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.25)')}
           onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
         >
-          <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+          <RefreshCw size={16} />
           Refresh Recommendations
         </button>
       </div>
@@ -468,7 +468,7 @@ export const TeacherRecommendationsPage: React.FC<TeacherRecommendationsPageProp
       {/* Loading state */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-          <RefreshCw size={32} className="animate-spin" color="#4f46e5" style={{ margin: '0 auto 16px' }} />
+          <RefreshCw size={32} color="#4f46e5" style={{ margin: '0 auto 16px' }} />
           <p style={{ color: '#64748b', fontSize: '0.95rem' }}>Synthesizing smart intervention recommendations...</p>
         </div>
       ) : filteredRecs.length === 0 ? (
@@ -833,7 +833,7 @@ export const TeacherRecommendationsPage: React.FC<TeacherRecommendationsPageProp
                   gap: 6,
                 }}
               >
-                {submittingApprove ? <RefreshCw size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                {submittingApprove ? <RefreshCw size={16} /> : <CheckCircle2 size={16} />}
                 Confirm & Create Intervention
               </button>
             </div>

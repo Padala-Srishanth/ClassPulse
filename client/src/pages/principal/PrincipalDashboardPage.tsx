@@ -118,9 +118,8 @@ export const PrincipalDashboardPage: React.FC<{ onNavigate?: (page: string) => v
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px', flexDirection: 'column', gap: '16px' }}>
-        <RefreshCw size={32} color="#059669" style={{ animation: 'spin 1s linear infinite' }} />
+        <RefreshCw size={32} color="#059669" />
         <p style={{ color: '#64748b' }}>Loading school overview...</p>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }

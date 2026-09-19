@@ -183,7 +183,7 @@ export const PrincipalAssignmentsPage: React.FC = () => {
 
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '60px', color: '#64748b', gap: '8px' }}>
-            <RefreshCw size={24} style={{ animation: 'spin 1s linear infinite' }} /> Loading analytics...
+            <RefreshCw size={24} /> Loading analytics...
           </div>
         ) : error ? (
           <div style={{ padding: '24px', color: '#b91c1c' }}>{error}</div>

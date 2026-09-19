@@ -319,8 +319,7 @@ export const TimetableManagementPage: React.FC = () => {
             {/* Period List */}
             {loading ? (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '36px', gap: '12px' }}>
-                <RefreshCw size={20} color="#059669" style={{ animation: 'spin 1s linear infinite' }} />
-                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                <RefreshCw size={20} color="#059669" />
                 <span style={{ color: '#64748b' }}>Loading...</span>
               </div>
             ) : daySlots.length === 0 ? (

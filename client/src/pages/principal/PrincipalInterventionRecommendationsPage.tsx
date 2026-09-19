@@ -260,7 +260,7 @@ export const PrincipalInterventionRecommendationsPage: React.FC<PrincipalInterve
             <div style={{ background: 'rgba(255,255,255,0.2)', padding: 6, borderRadius: 8 }}>
               <Shield size={22} color="#a7f3d0" />
             </div>
-            <h1 style={{ fontSize: '1.6rem', fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>
+            <h1 style={{ fontSize: '1.6rem', fontWeight: 700, letterSpacing: '-0.02em', margin: 0, color: '#ffffff' }}>
               Smart Student Support Recommendations
             </h1>
           </div>

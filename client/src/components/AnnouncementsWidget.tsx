@@ -153,9 +153,8 @@ export const AnnouncementsWidget: React.FC<AnnouncementsWidgetProps> = ({
       {/* Content */}
       {loading ? (
         <div style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
-          <RefreshCw size={22} color="#f59e0b" style={{ animation: 'spin 1s linear infinite', marginBottom: '8px' }} />
+          <RefreshCw size={22} color="#f59e0b" style={{ marginBottom: '8px' }} />
           <p style={{ margin: 0, fontSize: '0.82rem' }}>Checking for latest notices...</p>
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       ) : announcements.length === 0 ? (
         <div

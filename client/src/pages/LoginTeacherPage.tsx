@@ -66,13 +66,11 @@ export const TeacherLoginPage: React.FC<TeacherLoginPageProps> = ({ onBack, onSu
         position: 'absolute', top: '-20%', left: '-10%',
         width: '500px', height: '500px', borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)',
-        animation: 'pulse 6s ease-in-out infinite',
       }} />
       <div style={{
         position: 'absolute', bottom: '-15%', right: '-10%',
         width: '400px', height: '400px', borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 70%)',
-        animation: 'pulse 8s ease-in-out infinite 2s',
       }} />
 
       {/* Card */}

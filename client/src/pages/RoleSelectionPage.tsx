@@ -83,18 +83,16 @@ export const RoleSelectionPage: React.FC<RoleSelectionPageProps> = ({ onRoleSele
         overflow: 'hidden',
       }}
     >
-      {/* Animated background orbs */}
+      {/* Background orbs */}
       <div style={{
         position: 'absolute', top: '-20%', left: '-10%',
         width: '600px', height: '600px', borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)',
-        animation: 'pulse 6s ease-in-out infinite',
       }} />
       <div style={{
         position: 'absolute', bottom: '-20%', right: '-10%',
         width: '500px', height: '500px', borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 70%)',
-        animation: 'pulse 8s ease-in-out infinite 2s',
       }} />
 
       {/* Header */}
@@ -191,8 +189,6 @@ export const RoleSelectionPage: React.FC<RoleSelectionPageProps> = ({ onRoleSele
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 marginBottom: '20px',
                 boxShadow: `0 8px 24px ${card.accentColor}44`,
-                transition: 'transform 0.25s ease',
-                transform: isHovered ? 'rotate(-4deg) scale(1.1)' : 'none',
               }}>
                 <Icon size={28} color="white" />
               </div>

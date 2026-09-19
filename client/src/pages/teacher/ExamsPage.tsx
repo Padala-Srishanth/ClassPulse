@@ -184,8 +184,7 @@ export const ExamsPage: React.FC = () => {
           </h3>
           {loading ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-              <RefreshCw size={24} color="#4f46e5" style={{ animation: 'spin 1s linear infinite' }} />
-              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              <RefreshCw size={24} color="#4f46e5" />
             </div>
           ) : exams.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>No exams created yet. Click "New Exam" to create one.</div>
@@ -282,7 +281,7 @@ export const ExamsPage: React.FC = () => {
           </div>
           {resultsLoading ? (
             <div style={{ textAlign: 'center', padding: '32px', color: '#64748b' }}>
-              <RefreshCw size={22} color="#4f46e5" style={{ animation: 'spin 1s linear infinite' }} />
+              <RefreshCw size={22} color="#4f46e5" />
               <p style={{ marginTop: '8px' }}>Loading results...</p>
             </div>
           ) : examResults.length === 0 ? (

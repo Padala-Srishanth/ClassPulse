@@ -119,7 +119,7 @@ export const StudentDetailPage: React.FC<StudentDetailPageProps> = ({
             </button>
           )}
           <button className="btn btn-outline btn-sm" onClick={handleReanalyze} disabled={reanalyzing}>
-            <RefreshCw size={14} className={reanalyzing ? 'spin' : ''} />
+            <RefreshCw size={14} />
             {reanalyzing ? 'Recalculating...' : 'Refresh AI Analysis'}
           </button>
           <button className="btn btn-primary btn-sm" onClick={() => onOpenIntervention(student)}>

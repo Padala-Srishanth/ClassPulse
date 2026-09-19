@@ -130,7 +130,7 @@ export const StudentMonthlyReportPage: React.FC = () => {
               className="monthly-btn-icon"
               title="Regenerate Report"
             >
-              <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+              <RefreshCw size={16} />
             </button>
           </div>
         </div>
@@ -165,7 +165,7 @@ export const StudentMonthlyReportPage: React.FC = () => {
 
       {loading && !report ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '240px', gap: '12px', color: '#64748b' }}>
-          <RefreshCw size={32} color="#4f46e5" className="animate-spin" />
+          <RefreshCw size={32} color="#4f46e5" />
           <p style={{ fontSize: '0.9rem' }}>Loading longitudinal student report...</p>
         </div>
       ) : report ? (

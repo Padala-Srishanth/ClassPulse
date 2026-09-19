@@ -92,8 +92,7 @@ export const PrincipalReportsPage: React.FC = () => {
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>
-          <RefreshCw size={28} color="#059669" style={{ animation: 'spin 1s linear infinite', marginBottom: '12px' }} />
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          <RefreshCw size={28} color="#059669" style={{ marginBottom: '12px' }} />
           <p>Generating report...</p>
         </div>
       ) : absenteeReport && absenteeReport.report.length === 0 ? (

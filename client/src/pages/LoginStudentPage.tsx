@@ -14,6 +14,17 @@ export const StudentLoginPage: React.FC<StudentLoginPageProps> = ({ onBack, onSu
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSlowLoading, setIsSlowLoading] = useState(false);
+
+  React.useEffect(() => {
+    let timer: any;
+    if (isLoading) {
+      timer = setTimeout(() => setIsSlowLoading(true), 3500);
+    } else {
+      setIsSlowLoading(false);
+    }
+    return () => clearTimeout(timer);
+  }, [isLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,6 +211,12 @@ export const StudentLoginPage: React.FC<StudentLoginPageProps> = ({ onBack, onSu
           >
             {isLoading ? 'Signing in...' : 'Sign In to Student Portal'}
           </button>
+
+          {isLoading && isSlowLoading && (
+            <p style={{ color: '#38bdf8', fontSize: '0.8rem', margin: '10px 0 0', textAlign: 'center', lineHeight: 1.4 }}>
+              ⚡ Waking up cloud server (free-tier spin-up takes ~45s if idle)...
+            </p>
+          )}
         </form>
 
         {/* Hint */}

@@ -199,7 +199,7 @@ export const TeacherMonthlyReportsPage: React.FC = () => {
               className="monthly-btn-icon"
               title="Regenerate Class Report"
             >
-              <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+              <RefreshCw size={16} />
             </button>
           </div>
         </div>
@@ -214,7 +214,7 @@ export const TeacherMonthlyReportsPage: React.FC = () => {
 
       {loading && !classReport ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '240px', gap: '12px', color: '#64748b' }}>
-          <RefreshCw size={32} color="#4f46e5" className="animate-spin" />
+          <RefreshCw size={32} color="#4f46e5" />
           <p style={{ fontSize: '0.9rem' }}>Aggregating cohort monthly data...</p>
         </div>
       ) : classReport ? (
@@ -515,7 +515,7 @@ export const TeacherMonthlyReportsPage: React.FC = () => {
 
             {modalLoading ? (
               <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                <RefreshCw size={28} color="#4f46e5" className="animate-spin" style={{ margin: '0 auto 8px' }} />
+                <RefreshCw size={28} color="#4f46e5" style={{ margin: '0 auto 8px' }} />
                 <p style={{ fontSize: '0.875rem' }}>Loading student history & dossier...</p>
               </div>
             ) : activeStudentReport ? (
